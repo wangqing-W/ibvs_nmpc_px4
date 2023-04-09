@@ -1,0 +1,3 @@
+/home/zyh/rpg_ws/src/mpc1_pkg/model/CMakeFiles/rebuild_cache.dir
+/home/zyh/rpg_ws/src/mpc1_pkg/model/CMakeFiles/edit_cache.dir
+/home/zyh/rpg_ws/src/mpc1_pkg/model/CMakeFiles/quadrotor_model_codegen.dir
