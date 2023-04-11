@@ -1,87 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from acados_settings import acados_settings
-import time
-import os
-import numpy as np
-import matplotlib.pyplot as plt
-from plotFnc import *
-from utils import *
-from trajectory import *
-import rospy
-import message_filters
-from std_msgs.msg import Header
-from std_msgs.msg import Int32, Bool
-from sensor_msgs.msg import Imu
-from geometry_msgs.msg import PointStamped, PoseStamped
-from nav_msgs.msg import Odometry
-from ibvs_pkg.msg import xyzyawVel, point_xyz
-from quadrotor_msgs.msg import ControlCommand
-from scipy.spatial.transform import Rotation as R
-import matplotlib.pyplot as plt
-import threading
-
-class QuadrotorController(object):
-    def __init__(self, Th, N):
-        # mpc and simulation parameters
-        self.Ts = Th / N   # sampling time[s]
-        # constants
-        self.g = 9.81     # m/s^2
-        self.N = N
-        
-        # extended kalman filter bool
-        # extended_kalman_filter = False
-
-        # load model and acados_solver
-        self.model, self.acados_solver, self.acados_integrator = acados_settings(self.Ts, Th, N)
-
-        # dimensions
-        self.nx = self.model.x.size()[0]
-        self.nu = self.model.u.size()[0]
-        self.ny = self.nx + self.nu
-
-        # initialize data structs
-        self.tot_comp_sum = 0
-        self.tcomp_max = 0
-        self.iter = 0
-
-        # set initial condition for acados integrator
-        self.xcurrent = self.model.x0.reshape((self.nx,))
-
-        # initial info
-        self.quad = np.array([0.0, 0.0, 0.0, 1.0]) # x,y,z,w
-        self.R = R.from_quat(self.quad)
-        self.R_m = self.R.as_matrix()
-
-        # self.odom = Odometry()
-        self.vel_B = np.zeros([3,1])
-        self.vel_W = np.zeros([3,1])
-        self.vel_W_history = []  # 存储历史速度数据
-        self.ref_vel_history = []  # 存储历史参考速度数据
-
-        self.time = rospy.Time.now()
-        self.control_command = ControlCommand()
-        self.control_command.control_mode = self.control_command.BODY_RATES
-        # get sensor topics
-        imu_topic = rospy.get_param('~imu_topic', "/hummingbird/imu")
-        odom_topic = rospy.get_param('~odom_topic', "/hummingbird/ground_truth/odometry")
-        # get ibvs topics
-        ref_vel_topic = rospy.get_param('~ref_vel_topic', "/hummingbird/reference_vel")
-        marker_topic = rospy.get_param('~marker_topic', "/hummingbird/markerpoint")
-        # get control topics
-        control_command_topic = rospy.get_param('~control_command_topic', "/hummingbird/autopilot/control_command_input")
-        # arm_topic = rospy.get_param('~arm_topic', "bridge/arm")
-        self.imu_sub = rospy.Subscriber(imu_topic, Imu, self.imuCallback)
-        self.odom_sub = rospy.Subscriber(odom_topic, Odometry, self.odomCallback)
-        self.control_command_pub = rospy.Publisher(control_command_topic, ControlCommand, queue_size=1)
-
-        self.ref_vel_sub = message_filters.Subscriber(ref_vel_topic, xyzyawVel)
-        self.marker_sub = message_filters.Subscriber(marker_topic, point_xyz)
-        sync_listener = message_filters.ApproximateTimeSynchronizer([self.ref_vel_sub,self.marker_sub], 1, 0.05)
-        sync_listener.registerCallback(self.refVelMarkerPointCallback)
-
-        #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from acados_settings import acados_settings
 import time
@@ -172,22 +90,6 @@ class QuadrotorController(object):
         # self.plot_thread = threading.Thread(target=self.plotVelocities)
         # self.plot_thread.daemon = True
         # self.plot_thread.start()
-
-    def imuCallback(self, imu_msg):
-        self.quad[3] = imu_msg.orientation.w
-        self.quad[0] = imu_msg.orientation.x
-        self.quad[1] = imu_msg.orientation.y
-        self.quad[2] = imu_msg.orientation.z
-        self.R = R.from_quat(self.quad)
-        self.R_m = self.R.as_matrix()
-        # print("[INFO] estimated quant w,x,y,z is:", self.quad)
-
-    def odomCallback(self, odom_msg):
-        self.vel_B[0] = odom_msg.twist.twist.linear.x
-        self.vel_B[1] = odom_msg.twist.twist.linear.y
-        self.vel_B[2] = odom_msg.twist.twist.linear.z
-        self.vel_W = self.R_m.dot(self.vel_B)
-        # print("[INFO]
 
     def imuCallback(self, imu_msg):
         self.quad[3] = imu_msg.orientation.w

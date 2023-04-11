@@ -184,25 +184,30 @@ Mat Lvl(Mat p2s,                    // Points of the actual image in the sphere
         return L;
 }
 
-Mat qe2(Mat p2s,                     // Points of the actual image in the sphere
+Mat qe2(Mat p1s,                     // Points of the target image in the sphere
+        Mat p2s,                     // Points of the actual image in the sphere
         Mat &q_e2                    // Quaternion3d of heading angle expressed as Mat
 )
 {
         int num = p2s.rows;
         q_e2 = Mat::zeros(1, 4, CV_64F);
-        Mat p_cen = Mat::zeros(1, 3, CV_64F);
+        Mat p1_cen = Mat::zeros(1, 3, CV_64F);
+        Mat p2_cen = Mat::zeros(1, 3, CV_64F);
         for(int i=0; i<num; i++)
         {
-                p_cen.row(0) += p2s.row(i);
+                p1_cen.row(0) += p1s.row(i);
+                p2_cen.row(0) += p2s.row(i);
                 // cout << "p2s.row" << i << "is " << p2s.row(i).at<double>(0, 0) << " " 
                 // << p2s.row(i).at<double>(0, 1) << " " << p2s.row(i).at<double>(0, 2) << endl;
         }
-        p_cen = p_cen / double(num);
-        double delta = atan(-p_cen.at<double>(0, 0)/p_cen.at<double>(0, 2));
-        q_e2.at<double>(0, 0) = cos(delta/2);
+        p1_cen = p1_cen / double(num);
+        p2_cen = p2_cen / double(num);
+        double delta = atan(-p2_cen.at<double>(0, 0)/p2_cen.at<double>(0, 2)),
+               delta_d = atan(-p1_cen.at<double>(0, 0)/p1_cen.at<double>(0, 2));
+        q_e2.at<double>(0, 0) = cos((delta-delta_d)/2);
         q_e2.at<double>(0, 1) = 0;
         q_e2.at<double>(0, 2) = 0;
-        q_e2.at<double>(0, 3) = sin(delta/2);
+        q_e2.at<double>(0, 3) = sin((delta-delta_d)/2);
         // cout << "q_cen,x,z:" << p_cen.at<double>(0, 0) << " " << p_cen.at<double>(0, 2) << endl;
         // cout << "q_e2,w,z:" << q_e2.at<double>(0, 0) << " " << q_e2.at<double>(0, 3) << endl;
         return q_e2;
@@ -280,7 +285,7 @@ int GUO(Mat img,                                      // Color Image to be proce
         // Get the Penrose pseudo-inverse of the interaction matrix
         double det = 0.0;
         Lo = Moore_Penrose_PInv(L, det);
-        if (det < 1e-6)
+        if (det < 1e-5)
         {
                 cout << "[ERROR] DET = ZERO --> det = " << det << endl;
                 return -1;
@@ -326,10 +331,11 @@ int GUO(Mat img,                                      // Color Image to be proce
         // state.Vroll  = (float) U.at<double>(3,0);
         // state.Vpitch = (float) U.at<double>(4,0);
         // state.Vyaw = (float)U.at<double>(5, 0);
-
+        state.Vyaw = kz * (-state.Yaw + M_PI/6);
         // Get the control law with yaw in rotation
-        qe2(p2s, q_e2);
+        qe2(p1s, p2s, q_e2);
         state.Vyaw = 2*kz*sgn(q_e2.at<double>(0, 0))*q_e2.at<double>(0, 3);
+
         // cout << "Enviadas las velocidades..." << endl;
         cout << "[CONTROL] Vx = " << state.Vx << " Vy = " << state.Vy << " Vz = " << state.Vz << " Vyaw = " << state.Vyaw << endl;
 

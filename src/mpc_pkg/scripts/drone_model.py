@@ -11,9 +11,9 @@ def drone_model():
 
     # constants
     g = 9.81 # m/s^2
-    epsilon = 0.1
+    epsilon = 0.01
     # pixel range, u_rang = c_u / fa = 320 / 462.138 = 0.69, v_rang = c_v / fa = 240 / 462.138 = 0.46
-    u_range = 0.69; v_range = 0.46
+    u_range = 0.60; v_range = 0.40
     ## CasAdi Model
     # set up states and controls
     px = MX.sym("px")

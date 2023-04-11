@@ -34,7 +34,7 @@ void vc_state::load(const ros::NodeHandle &nh)
         istr >> this->params.K_depth.at<double>(i / 3, i % 3);
       }
   }
-  cout << "[INF] Calibration Matrix " << endl
+  cout << "[INFO] Calibration Matrix " << endl
        << this->params.K << endl
        << this->params.K_depth << endl;
   // Load error threshold parameter

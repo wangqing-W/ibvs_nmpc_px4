@@ -17,9 +17,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  custom_msgs
   trajectory_msgs
   message_generation
 )
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -112,9 +115,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES ibvs_pkg
- CATKIN_DEPENDS cv_bridge geometry_msgs image_transport mav_msgs roscpp rospy sensor_msgs std_msgs trajectory_msgs message_runtime
+ CATKIN_DEPENDS cv_bridge geometry_msgs image_transport mav_msgs roscpp rospy sensor_msgs std_msgs trajectory_msgs message_runtime custom_msgs
 #  DEPENDS system_lib
 )
 
@@ -128,6 +131,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -143,16 +147,32 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(ibvs_base src/ibvs_description.cpp 
+add_executable(ibvs_aruco src/ibvs_aruco.cpp 
 src/vc_state/Moore_Penrose_PInv.cpp
 src/vc_state/GUO.cpp
 src/vc_state/vc_state.cpp)
 
-target_link_libraries(ibvs_base ${catkin_LIBRARIES})
+target_link_libraries(ibvs_aruco ${catkin_LIBRARIES})
 
-SET(CATKIN_WORSKPACE "$ENV{HOME}/rpg_ws")
+add_executable(ibvs_circle src/ibvs_circle_node.cpp
+src/ibvs_circle.cpp 
+src/vc_state/Moore_Penrose_PInv.cpp
+src/vc_state/GUO.cpp
+src/vc_state/vc_state.cpp
+src/circle_detection/CircleDetection.cpp
+src/circle_detection/ED-LIB.cpp
+src/circle_detection/ED.cpp
+src/circle_detection/EDCircles.cpp
+src/circle_detection/EDColor.cpp
+src/circle_detection/EDLines.cpp
+src/circle_detection/EDPF.cpp
+src/circle_detection/NFA.cpp)
 
-target_compile_definitions(ibvs_base PUBLIC WORKSPACE="${CATKIN_WORSKPACE}")
+target_link_libraries(ibvs_circle ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+SET(CATKIN_WORSKPACE "$ENV{HOME}/ibvs_rpg_ws")
+target_compile_definitions(ibvs_aruco PUBLIC WORKSPACE="${CATKIN_WORSKPACE}")
+target_compile_definitions(ibvs_circle PUBLIC WORKSPACE="${CATKIN_WORSKPACE}")
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

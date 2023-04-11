@@ -4,11 +4,11 @@
 
   <arg name="mav_name" default="$(arg quad_name)"/>
   <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo"/>
-  <arg name="world_name" default="$(find rotors_gazebo)/worlds/ground.world"/>
+  <arg name="world_name" default="$(find rotors_gazebo)/worlds/ground_circle.world"/>
 
-  <arg name="x_init" default="-3.5"/>
+  <arg name="x_init" default="-3.0"/>
   <arg name="y_init" default="-0.0"/>
-  <arg name="z_init" default="1"/>
+  <arg name="z_init" default="1.5"/>
 
   <arg name="use_mpc" default="true"/>
   <arg name="enable_logging" default="false" />

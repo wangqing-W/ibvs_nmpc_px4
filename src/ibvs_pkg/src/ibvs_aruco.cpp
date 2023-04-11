@@ -1,9 +1,8 @@
-#include "ibvs_description.h"
+#include "ibvs_aruco.h"
 #include <opencv2/aruco.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <Eigen/Core>
 #include <Eigen/Dense>
-
 /* Declaring namespaces */
 using namespace cv;
 using namespace std;
@@ -41,7 +40,7 @@ typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sens
 int main(int argc, char **argv)
 {
     /***************************************************************************************** INIT */
-	ros::init(argc, argv, "ibvs_base_node");
+	ros::init(argc, argv, "ibvs_aruco_node");
 	ros::NodeHandle nh;
 	state.load(nh);
     nh.getParam("SAVE_DESIRED_POS", SAVE_DESIRED_POS);
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<syncPolicy> cam_sync(syncPolicy(10), subscriber_color, subscriber_depth);  
     cam_sync.registerCallback(boost::bind(&imageCallback, _1, _2));
 
-    image_dir = "/src/ibvs_pkg/src/desired_f.png";
+    image_dir = "/src/ibvs_pkg/src/target/desired_f.png";
     image_transport::Publisher image_pub = it.advertise("matching", 1);
 	ros::Rate rate(30);
 
@@ -321,7 +320,7 @@ void poseCallback(const geometry_msgs::Pose::ConstPtr &msg)
 	// saving the data obtained
 	state.Roll = (float)roll;
 	state.Pitch = (float)pitch;
-
+	state.Yaw = (float)yaw;
 	// setting the position if its the first time
 	if (!state.initialized)
 	{
@@ -411,11 +410,11 @@ void imageCallback(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msg
 			// 								<< pd_uv[3][0] << "," << pd_uv[3][1] << endl;	
 			vector<float> depthVec{(float)actual_depth.at<unsigned short>(pd_uv[0][1], pd_uv[0][0]) /1000, (float)actual_depth.at<unsigned short>(pd_uv[1][1], pd_uv[1][0]) /1000,
 									(float)actual_depth.at<unsigned short>(pd_uv[2][1], pd_uv[2][0]) /1000, (float)actual_depth.at<unsigned short>(pd_uv[3][1], pd_uv[3][0]) /1000};
-			// std::cout << "Marker pixel values: " << depthVec[0] 
-			// << ", " << depthVec[1] 
-			// << ", " << depthVec[2] 
-			// << ", " << depthVec[3] 
-			// << std::endl;
+			std::cout << "Marker pixel values: " << depthVec[0] 
+			<< ", " << depthVec[1] 
+			<< ", " << depthVec[2] 
+			<< ", " << depthVec[3] 
+			<< std::endl;
 			puvz_msg.p1_x = (pc_uv[0].x() - state.params.K.at<double>(0, 2))/state.params.K.at<double>(0, 0);
 			puvz_msg.p1_y = (pc_uv[0].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
 			puvz_msg.p1_z = depthVec[0];
@@ -433,6 +432,194 @@ void imageCallback(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msg
 			temporal.convertTo(img_points, CV_32F);
 
 			cv::aruco::detectMarkers(state.desired_configuration.img, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
+			temporal = Mat::zeros(4, 2, CV_32F);
+			temporal.at<Point2f>(0, 0) = Point2f(markerCorners[0][0].x, markerCorners[0][0].y);
+			temporal.at<Point2f>(1, 0) = Point2f(markerCorners[0][1].x, markerCorners[0][1].y);
+			temporal.at<Point2f>(2, 0) = Point2f(markerCorners[0][2].x, markerCorners[0][2].y);
+			temporal.at<Point2f>(3, 0) = Point2f(markerCorners[0][3].x, markerCorners[0][3].y);
+			temporal.convertTo(matching_result.p1, CV_64F);
+			
+			// AQUI ES DONDE SE EJECUTA TODOOOOO
+			if (GUO(actual, depthVec, state, matching_result) < 0)
+			{
+				cout << "[ERROR] Controller failed" << endl;
+				return;
+			}
+			else
+			{
+				cout << "[INFO] Controller part has been executed" << endl;
+			}
+
+			// KLT tracker for the next iteration
+			Mat new_points, status, error;
+			Mat img_old_gray, img_new_gray;
+			cvtColor(img_old, img_old_gray, COLOR_BGR2GRAY);
+			cvtColor(img_new, img_new_gray, COLOR_BGR2GRAY);
+			calcOpticalFlowPyrLK(img_old_gray, img_new_gray, img_points, new_points, status, error);
+
+			Mat desired_temp = state.desired_configuration.img.clone();
+			for (int i = 0; i < matching_result.p1.rows; i++)
+			{
+				circle(desired_temp, Point2f(matching_result.p1.at<double>(i, 0), matching_result.p1.at<double>(i, 1)), 3, Scalar(0, 0, 255), -1);//RED
+			}
+			for (int i = 0; i < new_points.rows; i++)
+			{
+				vector<Eigen::Vector3d> c1_uv, c2_uv, d1_uv, d2_uv;
+				c1_uv.push_back(Eigen::Vector3d(img_points.at<Point2f>(i, 0).x, img_points.at<Point2f>(i, 0).y, 1));
+				c2_uv.push_back(Eigen::Vector3d(new_points.at<Point2f>(i, 0).x, new_points.at<Point2f>(i, 0).y, 1));
+				d1_uv = alignColor2Depth(actual, actual_depth, c1_uv, state.params);
+				d2_uv = alignColor2Depth(actual, actual_depth, c2_uv, state.params);
+				circle(desired_temp, new_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
+				circle(actual, new_points.at<Point2f>(i, 0), 3, Scalar(0, 0, 255), -1);// Red
+				circle(actual, img_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
+				// cout << "coordinates in depth image:" << d2_uv[0][0] << "," << d2_uv[0][1] << endl;				  
+				circle(actual_depth, Point2f(d1_uv[0][0], d1_uv[0][1]), 6, Scalar(255, 255, 255), -1);
+				circle(actual_depth, Point2f(d2_uv[0][0], d2_uv[0][1]), 6, Scalar(255, 255, 255), -1);
+			}
+			imshow("Desired", desired_temp);
+			imshow("Cámara color", actual);
+			imshow("Cámara depth", actual_depth);
+			waitKey(1);
+
+			new_points.convertTo(matching_result.p2, CV_64F);
+			img_points = new_points.clone();
+			actual.copyTo(img_old);
+		}
+
+		// if (SAVE_IMAGES)
+		// {
+		// 	string saveIMG = "/src/vc_new_controller/src/data/img/" + to_string(contIMG++) + ".jpg";
+		// 	imwrite(workspace + saveIMG, actual);
+		// 	cout << "[INFO] << Image saved >>" << saveIMG << endl;
+		// }
+		// else
+		// {
+		// 	string saveIMG = "/src/vc_new_controller/src/data/img/0.jpg";
+		// 	imwrite(workspace + saveIMG, actual);
+		// 	cout << "[INFO] << Image saved >>" << saveIMG << endl;
+		// }
+
+		/************************************************************* Prepare message */
+		image_msg = cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, matching_result.img_matches).toImageMsg();
+		image_msg->header.frame_id = "matching_image";
+		image_msg->width = matching_result.img_matches.cols;
+		image_msg->height = matching_result.img_matches.rows;
+		image_msg->is_bigendian = false;
+		image_msg->step = sizeof(unsigned char) * matching_result.img_matches.cols * 3;
+		image_msg->header.stamp = ros::Time::now();
+
+		cout << "[INFO] Matching published" << endl;
+
+		if (state.initialized)
+			cout << "[VELS] Vx: " << state.Vx << ", Vy: " << state.Vy << ", Vz: " << state.Vz << "\nVroll: " << state.Vroll << ", Vpitch: " << state.Vpitch << ", Wyaw: " << state.Vyaw << "\n==> average error: " << matching_result.mean_feature_error << "<==" << endl
+					 << "===================================================================\n\n";
+	}
+	catch (cv_bridge::Exception &e)
+	{
+		ROS_ERROR("Could not convert from '%s' to 'bgr8'.",
+							image_msg->encoding.c_str());
+	}
+}
+
+void imageCallback2(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msgs::ImageConstPtr &depth_msg)
+{
+	cout << "[INFO] ImageCallback function" << endl;
+	try
+	{
+		Mat actual = cv_bridge::toCvShare(color_msg, "bgr8")->image;
+		Mat actual_depth = getDepthImageFromMsg(depth_msg);
+		// resize(actual_depth,depth_actual,Size(actual.cols, actual.rows),0,0,INTER_LINEAR);
+		cout << "[INFO] Image received" << endl;
+
+		if (contIMG < 3)
+		{
+			contIMG++;
+			cout << endl
+					 << "[INFO] Detecting keypoints" << endl;
+
+			std::vector<int> markerIds;
+			std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
+			// cv::Ptr<cv::aruco::DetectorParameters> parameters = cv::aruco::DetectorParameters::create();
+			// cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
+			// cv::aruco::detectMarkers(actual, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
+			// TODO:: detect the red circle in the actual image
+
+			Mat temporal = Mat::zeros(4, 2, CV_32F);
+			temporal.at<Point2f>(0, 0) = Point2f(markerCorners[0][0].x, markerCorners[0][0].y);
+			temporal.at<Point2f>(1, 0) = Point2f(markerCorners[0][1].x, markerCorners[0][1].y);
+			temporal.at<Point2f>(2, 0) = Point2f(markerCorners[0][2].x, markerCorners[0][2].y);
+			temporal.at<Point2f>(3, 0) = Point2f(markerCorners[0][3].x, markerCorners[0][3].y);
+			temporal.convertTo(matching_result.p2, CV_64F);
+			temporal.convertTo(img_points, CV_32F);
+
+			// TODO:: detect the red circle in the desired image
+			// cv::aruco::detectMarkers(state.desired_configuration.img, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
+			temporal = Mat::zeros(4, 2, CV_32F);
+			temporal.at<Point2f>(0, 0) = Point2f(markerCorners[0][0].x, markerCorners[0][0].y);
+			temporal.at<Point2f>(1, 0) = Point2f(markerCorners[0][1].x, markerCorners[0][1].y);
+			temporal.at<Point2f>(2, 0) = Point2f(markerCorners[0][2].x, markerCorners[0][2].y);
+			temporal.at<Point2f>(3, 0) = Point2f(markerCorners[0][3].x, markerCorners[0][3].y);
+			temporal.convertTo(matching_result.p1, CV_64F);
+
+			cout << "[INFO] img_points: " << img_points << endl;
+			cout << "[INFO] matching_result.p1: " << matching_result.p1 << endl;
+			cout << "[INFO] matching_result.p2: " << matching_result.p2 << endl;
+
+			img_old = actual;
+		}
+		else
+		{
+			Mat img_new = actual;
+
+			std::vector<int> markerIds;
+			std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
+			// cv::Ptr<cv::aruco::DetectorParameters> parameters = cv::aruco::DetectorParameters::create();
+			// cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
+			// cv::aruco::detectMarkers(actual, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
+			// TODO:: detect the red circle in the actual image
+
+			Mat temporal = Mat::zeros(4, 2, CV_32F);
+			temporal.at<Point2f>(0, 0) = Point2f(markerCorners[0][0].x, markerCorners[0][0].y);
+			temporal.at<Point2f>(1, 0) = Point2f(markerCorners[0][1].x, markerCorners[0][1].y);
+			temporal.at<Point2f>(2, 0) = Point2f(markerCorners[0][2].x, markerCorners[0][2].y);
+			temporal.at<Point2f>(3, 0) = Point2f(markerCorners[0][3].x, markerCorners[0][3].y);
+			// cout << "markerCorners_x:" << markerCorners[0][0].x << "," << markerCorners[0][1].x << "," 
+			// << markerCorners[0][2].x << "," << markerCorners[0][3].x << endl;
+			vector<Eigen::Vector3d> pc_uv, pd_uv;
+			pc_uv.push_back(Eigen::Vector3d(markerCorners[0][0].x, markerCorners[0][0].y, 1));
+			pc_uv.push_back(Eigen::Vector3d(markerCorners[0][1].x, markerCorners[0][1].y, 1));
+			pc_uv.push_back(Eigen::Vector3d(markerCorners[0][2].x, markerCorners[0][2].y, 1));
+			pc_uv.push_back(Eigen::Vector3d(markerCorners[0][3].x, markerCorners[0][3].y, 1));
+			pd_uv = alignColor2Depth(actual, actual_depth, pc_uv, state.params);
+			// cout << "pd_uv in depth image:" << pd_uv[0][0] << "," << pd_uv[0][1] << endl
+			// 								<< pd_uv[1][0] << "," << pd_uv[1][1] << endl
+			// 								<< pd_uv[2][0] << "," << pd_uv[2][1] << endl
+			// 								<< pd_uv[3][0] << "," << pd_uv[3][1] << endl;	
+			vector<float> depthVec{(float)actual_depth.at<unsigned short>(pd_uv[0][1], pd_uv[0][0]) /1000, (float)actual_depth.at<unsigned short>(pd_uv[1][1], pd_uv[1][0]) /1000,
+									(float)actual_depth.at<unsigned short>(pd_uv[2][1], pd_uv[2][0]) /1000, (float)actual_depth.at<unsigned short>(pd_uv[3][1], pd_uv[3][0]) /1000};
+			std::cout << "Marker pixel values: " << depthVec[0] 
+			<< ", " << depthVec[1] 
+			<< ", " << depthVec[2] 
+			<< ", " << depthVec[3] 
+			<< std::endl;
+			puvz_msg.p1_x = (pc_uv[0].x() - state.params.K.at<double>(0, 2))/state.params.K.at<double>(0, 0);
+			puvz_msg.p1_y = (pc_uv[0].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
+			puvz_msg.p1_z = depthVec[0];
+			puvz_msg.p2_x = (pc_uv[1].x() - state.params.K.at<double>(0, 2))/state.params.K.at<double>(0, 0);
+			puvz_msg.p2_y = (pc_uv[1].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
+			puvz_msg.p2_z = depthVec[1];
+			puvz_msg.p3_x = (pc_uv[2].x() - state.params.K.at<double>(0, 2))/state.params.K.at<double>(0, 0);
+			puvz_msg.p3_y = (pc_uv[2].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
+			puvz_msg.p3_z = depthVec[2];
+			puvz_msg.p4_x = (pc_uv[3].x() - state.params.K.at<double>(0, 2))/state.params.K.at<double>(0, 0);
+			puvz_msg.p4_y = (pc_uv[3].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
+			puvz_msg.p4_z = depthVec[3];
+
+			temporal.convertTo(matching_result.p2, CV_64F);
+			temporal.convertTo(img_points, CV_32F);
+
+			// TODO:: detect the red circle in the desired image
+			// cv::aruco::detectMarkers(state.desired_configuration.img, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
 			temporal = Mat::zeros(4, 2, CV_32F);
 			temporal.at<Point2f>(0, 0) = Point2f(markerCorners[0][0].x, markerCorners[0][0].y);
 			temporal.at<Point2f>(1, 0) = Point2f(markerCorners[0][1].x, markerCorners[0][1].y);

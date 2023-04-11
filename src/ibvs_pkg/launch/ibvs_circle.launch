@@ -1,0 +1,5 @@
+<!-- Start ibvs pkg-->
+<launch>
+  <node name="ibvs_circle_node" type="ibvs_circle" pkg="ibvs_pkg" output="screen"/>
+  <rosparam command="load" file="$(find ibvs_pkg)/config/params_hummingbird.yaml"/>
+</launch>

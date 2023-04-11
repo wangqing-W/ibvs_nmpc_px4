@@ -1,5 +1,5 @@
-#ifndef IBVS_DESCRIPTION_H
-#define IBVS_DESCRIPTION_H
+#ifndef IBVS_ARUCO_H
+#define IBVS_ARUCO_H
 
 /******************************************************* ROS libraries*/
 #include <ros/ros.h>
@@ -24,6 +24,7 @@
 #include <opencv2/features2d.hpp>
 
 /*************************************************** c++ libraries */
+#include <math.h>
 #include <string>
 #include <vector>
 #include <fstream>
