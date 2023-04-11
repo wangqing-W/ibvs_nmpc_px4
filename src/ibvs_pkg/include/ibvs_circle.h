@@ -3,6 +3,7 @@
 
 // C++ libraries
 #include <math.h>
+#include <time.h>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -66,7 +67,7 @@ namespace ibvs_pkg{
             int contIMG;
             // ros topics
             ros::Subscriber quad_sub;
-            ros::Publisher puvz_pub;
+            ros::Publisher puvz_pub, vel_pub;
 
             // message filter topics
             message_filters::Subscriber<sensor_msgs::Image> color_sub_, depth_sub_;

@@ -4,6 +4,7 @@
 
   <arg name="mav_name" default="$(arg quad_name)"/>
   <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo"/>
+  <arg name="target" default="circle"/>
   <arg name="world_name" default="$(find rotors_gazebo)/worlds/ground_circle.world"/>
 
   <arg name="x_init" default="-3.0"/>
@@ -24,7 +25,8 @@
   <!-- Basic simulation environment !-->
   <include file="$(find rpg_rotors_interface)/launch/basics/base_quad_simulation.launch">
     <arg name="quad_name" value="$(arg quad_name)"/>
-    <arg name="world_name" value="$(arg world_name)"/>
+    <!-- <arg name="world_name" value="$(arg world_name)"/> -->
+    <arg name="world_name" value="$(find rotors_gazebo)/worlds/ground_$(arg target).world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="use_ground_truth" value="$(arg use_ground_truth)"/>

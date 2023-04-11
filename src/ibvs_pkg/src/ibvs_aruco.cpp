@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<syncPolicy> cam_sync(syncPolicy(10), subscriber_color, subscriber_depth);  
     cam_sync.registerCallback(boost::bind(&imageCallback, _1, _2));
 
-    image_dir = "/src/ibvs_pkg/src/target/desired_f.png";
+    image_dir = "/src/ibvs_pkg/target/desired_f.png";
     image_transport::Publisher image_pub = it.advertise("matching", 1);
 	ros::Rate rate(30);
 

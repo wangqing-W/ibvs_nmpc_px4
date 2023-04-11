@@ -22,7 +22,9 @@ void ibvsCircle::init(ros::NodeHandle &nh)
     initTopics(nh);
     quad_sub = nh.subscribe("/hummingbird/imu", 1, &ibvsCircle::quadCallback, this, ros::TransportHints().tcpNoDelay());
 	puvz_pub = nh.advertise<ibvs_pkg::point_xyz>("/hummingbird/markerpoint", 1);
-
+    vel_pub = nh.advertise<ibvs_pkg::xyzyawVel>("/hummingbird/reference_vel", 1);
+    vel_msg.header.frame_id = "reference_velocity";
+	puvz_msg.header.frame_id = "marker_uvz";
     desired_depth = imread(workspace + depth_dir, IMREAD_UNCHANGED);
     desired_color = imread(workspace + color_dir, IMREAD_COLOR);
     state.desired_configuration.img = desired_color;
@@ -40,20 +42,17 @@ void ibvsCircle::init(ros::NodeHandle &nh)
 
 void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msgs::ImageConstPtr &depth_msg)
 {
-	cout << "[INFO] ImageCallback function" << endl;
+	ROS_INFO("[INFO] ImageCallback function");
     Mat actual = cv_bridge::toCvShare(color_msg, "bgr8")->image;
     Mat actual_depth = getDepthImageFromMsg(depth_msg);
     // resize(actual_depth,depth_actual,Size(actual.cols, actual.rows),0,0,INTER_LINEAR);
-    cout << "[INFO] Image received" << endl;
+    ROS_INFO("[INFO] Image received");
     double ring_x, ring_y, ring_w, ring_h;
     if (contIMG < 3)
     {
         contIMG++;
         cout << endl
                     << "[INFO] Detecting circles for initial 3 frames" << endl;
-
-        std::vector<int> markerIds;
-        std::vector<std::vector<cv::Point2f>> markerCorners;
         //TODO: detect in the actual image
         circleDetection.detectRing(actual_depth, false);
         ring_actual = circleDetection.getResult();
@@ -70,17 +69,24 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         temporal.convertTo(img_points, CV_32F);
 
         //TODO: detect in the desired image
+        ROS_INFO("Detect desired!!!");
         circleDetection.detectRing(desired_depth, true);
         ring_desired = circleDetection.getResult();
-        ring_x = ring_actual.first(0);
-        ring_y = ring_actual.first(1);
-        ring_w = ring_actual.second(0);
-        ring_h = ring_actual.second(1);
+        ring_x = ring_desired.first(0);
+        ring_y = ring_desired.first(1);
+        ring_w = ring_desired.second(0);
+        ring_h = ring_desired.second(1);
+        vector<Eigen::Vector3d> pc1_uv, pd1_uv;
+        pd1_uv.push_back(Eigen::Vector3d(ring_x, ring_y + ring_h, 1));
+        pd1_uv.push_back(Eigen::Vector3d(ring_x + ring_w, ring_y, 1));
+        pd1_uv.push_back(Eigen::Vector3d(ring_x, ring_y - ring_h, 1));
+        pd1_uv.push_back(Eigen::Vector3d(ring_x - ring_w, ring_y, 1));
+        pc1_uv = alignDepth2Color(desired_color, desired_depth, pd1_uv, state.params);
         // Mat temporal = Mat::zeros(4, 2, CV_32F);
-        temporal.at<Point2f>(0, 0) = Point2f(ring_x, ring_y + ring_h);
-        temporal.at<Point2f>(1, 0) = Point2f(ring_x + ring_w, ring_y);
-        temporal.at<Point2f>(2, 0) = Point2f(ring_x, ring_y - ring_h);
-        temporal.at<Point2f>(3, 0) = Point2f(ring_x - ring_w, ring_y);
+        temporal.at<Point2f>(0, 0) = Point2f(pc1_uv[0][0], pc1_uv[0][1]);
+        temporal.at<Point2f>(1, 0) = Point2f(pc1_uv[1][0], pc1_uv[1][1]);
+        temporal.at<Point2f>(2, 0) = Point2f(pc1_uv[2][0], pc1_uv[2][1]);
+        temporal.at<Point2f>(3, 0) = Point2f(pc1_uv[3][0], pc1_uv[3][1]);
         temporal.convertTo(matching_result.p1, CV_64F);
 
         cout << "[INFO] img_points: " << img_points << endl;
@@ -91,6 +97,8 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
     }
     else
     {
+        ros::Time t0 = ros::Time::now();
+        double ring_time, align_first_time, align_second_time, pub_vel_time, control_time, draw_time;
         Mat img_new = actual;
 
         std::vector<int> markerIds;
@@ -98,6 +106,9 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         //TODO: detect in the actual image
         ROS_INFO("Detect actual!!!");
         circleDetection.detectRing(actual_depth, false);
+        // ring_time = (ros::Time::now()-t0).toSec();
+        // t0 = ros::Time::now();
+
         ring_actual = circleDetection.getResult();
         ring_x = ring_actual.first(0);
         ring_y = ring_actual.first(1);
@@ -109,6 +120,9 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         pd_uv.push_back(Eigen::Vector3d(ring_x, ring_y - ring_h, 1));
         pd_uv.push_back(Eigen::Vector3d(ring_x - ring_w, ring_y, 1));
         pc_uv = alignDepth2Color(actual, actual_depth, pd_uv, state.params);
+        // align_first_time = (ros::Time::now()-t0).toSec();
+        // t0 = ros::Time::now();
+
         Mat temporal = Mat::zeros(4, 2, CV_32F);
         temporal.at<Point2f>(0, 0) = Point2f(pc_uv[0][0], pc_uv[0][1]);
         temporal.at<Point2f>(1, 0) = Point2f(pc_uv[1][0], pc_uv[1][1]);
@@ -134,42 +148,37 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         puvz_msg.p4_y = (pc_uv[3].y() - state.params.K.at<double>(1, 2))/state.params.K.at<double>(1, 1);
         puvz_msg.p4_z = depthVec[3];
 
+		puvz_msg.header.stamp = ros::Time::now();
+		puvz_pub.publish(puvz_msg);
+        // pub_vel_time = (ros::Time::now()-t0).toSec();
+        // t0 = ros::Time::now();
+
         temporal.convertTo(matching_result.p2, CV_64F);
         temporal.convertTo(img_points, CV_32F);
 
         // cv::aruco::detectMarkers(state.desired_configuration.img, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
         //TODO: detect in the desired image
-        ROS_INFO("Detect desired!!!");
-        circleDetection.detectRing(desired_depth, true);
-        ring_desired = circleDetection.getResult();
-        ring_x = ring_desired.first(0);
-        ring_y = ring_desired.first(1);
-        ring_w = ring_desired.second(0);
-        ring_h = ring_desired.second(1);
-        vector<Eigen::Vector3d> pc1_uv, pd1_uv;
-        pd1_uv.push_back(Eigen::Vector3d(ring_x, ring_y + ring_h, 1));
-        pd1_uv.push_back(Eigen::Vector3d(ring_x + ring_w, ring_y, 1));
-        pd1_uv.push_back(Eigen::Vector3d(ring_x, ring_y - ring_h, 1));
-        pd1_uv.push_back(Eigen::Vector3d(ring_x - ring_w, ring_y, 1));
-        pc1_uv = alignDepth2Color(desired_color, desired_depth, pd1_uv, state.params);
-        // Mat temporal = Mat::zeros(4, 2, CV_32F);
-        temporal.at<Point2f>(0, 0) = Point2f(pc1_uv[0][0], pc1_uv[0][1]);
-        temporal.at<Point2f>(1, 0) = Point2f(pc1_uv[1][0], pc1_uv[1][1]);
-        temporal.at<Point2f>(2, 0) = Point2f(pc1_uv[2][0], pc1_uv[2][1]);
-        temporal.at<Point2f>(3, 0) = Point2f(pc1_uv[3][0], pc1_uv[3][1]);
-        temporal.convertTo(matching_result.p1, CV_64F);
-        
         // AQUI ES DONDE SE EJECUTA TODOOOOO
         if (GUO(actual, depthVec, state, matching_result) < 0)
         {
-            cout << "[ERROR] Controller failed" << endl;
+            ROS_ERROR("[ERROR] Controller failed");
             return;
         }
         else
         {
-            cout << "[INFO] Controller part has been executed" << endl;
+            vel_msg.header.stamp = ros::Time::now();
+            Eigen::Vector3d VelB(state.Vx, state.Vy, state.Vz);
+            Eigen::Vector3d VelW;
+            VelW = state.quad * VelB;
+            vel_msg.Vx = VelW.x();
+            vel_msg.Vy = VelW.y();
+            vel_msg.Vz = VelW.z();
+            vel_msg.Vyaw = state.Vyaw;
+            vel_pub.publish(vel_msg);
+            ROS_INFO("Controller part has been executed");
         }
-
+        // control_time = (ros::Time::now()-t0).toSec();
+        // t0 = ros::Time::now();
         // KLT tracker for the next iteration
         Mat new_points, status, error;
         Mat img_old_gray, img_new_gray;
@@ -192,14 +201,14 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         imshow("Cámara color", actual);
         // imshow("Cámara depth", actual_depth);
         waitKey(1);
-
+        // draw_time = (ros::Time::now()-t0).toSec();
+        // t0 = ros::Time::now();
         new_points.convertTo(matching_result.p2, CV_64F);
         img_points = new_points.clone();
         actual.copyTo(img_old);
+        // ROS_INFO("ring_time: %.4f\n align_first_time:%.4f\n align_second_time:%.4f\n pub_vel_time:%.4f\n control_time:%.4f\n draw_time:%.4f\n", 
+        //       ring_time, align_first_time, align_second_time, pub_vel_time, control_time, draw_time);
     }
-    if (state.initialized)
-        cout << "[VELS] Vx: " << state.Vx << ", Vy: " << state.Vy << ", Vz: " << state.Vz << "\nVroll: " << state.Vroll << ", Vpitch: " << state.Vpitch << ", Wyaw: " << state.Vyaw << "\n==> average error: " << matching_result.mean_feature_error << "<==" << endl
-                    << "===================================================================\n\n";
 }
 
 /*
