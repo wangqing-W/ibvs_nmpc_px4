@@ -20,6 +20,7 @@
 #include <std_msgs/Bool.h>
 #include "tf/transform_datatypes.h"
 #include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Pose.h>
 #include <image_transport/image_transport.h>
 #include <trajectory_msgs/MultiDOFJointTrajectory.h>
 #include <message_filters/subscriber.h>
@@ -58,7 +59,9 @@ namespace ibvs_pkg{
             ros::NodeHandle n;
             circle_detection::CircleDetection circleDetection;
             void init(ros::NodeHandle &nh);
-            void initTopics(ros::NodeHandle &nh) {
+            void initCamTopics(ros::NodeHandle &nh) {
+                nh.param<string>("d435i_depth_topic", depth_topic, "/d435/depth/image_raw");
+                nh.param<string>("d435i_color_topic", color_topic, "/d435/color/image_raw");
                 color_sub_.subscribe(nh, color_topic, 1);
                 depth_sub_.subscribe(nh, depth_topic, 1);
                 cam_sync.connectInput(color_sub_, depth_sub_);
@@ -66,8 +69,8 @@ namespace ibvs_pkg{
             }
             int contIMG;
             // ros topics
-            ros::Subscriber quad_sub;
-            ros::Publisher puvz_pub, vel_pub;
+            ros::Subscriber quad_sub, pos_sub;
+            ros::Publisher puvz_pub, vel_pub, target_reached_pub;
 
             // message filter topics
             message_filters::Subscriber<sensor_msgs::Image> color_sub_, depth_sub_;
@@ -81,6 +84,7 @@ namespace ibvs_pkg{
             ibvs_pkg::Marker marker_msg;
             ibvs_pkg::xyzyawVel vel_msg;
             ibvs_pkg::point_xyz puvz_msg;
+            std_msgs::Bool target_reached_msg;
 
             // Mat
             cv::Mat desired_depth, desired_color;
@@ -93,4 +97,5 @@ namespace ibvs_pkg{
             pair<Eigen::Vector3d, Eigen::Vector2d> ring_actual;
     };
 }
+
 #endif

@@ -26,6 +26,9 @@ class QuadrotorController(object):
         # mpc and simulation parameters
         self.Ts = Th / N   # sampling time[s]
 
+        # stop msg
+        self.stop = False
+
         # constants
         self.g = 9.81     # m/s^2
         self.N = N
@@ -43,6 +46,8 @@ class QuadrotorController(object):
         self.tot_comp_sum = 0
         self.tcomp_max = 0
         self.iter = 0
+        self.alpha = 0.4
+        self.beta = 0.6
 
         # set initial condition for acados integrator
         self.xcurrent = self.model.x0.reshape((self.nx,))
@@ -51,12 +56,18 @@ class QuadrotorController(object):
         self.quad = np.array([0.0, 0.0, 0.0, 1.0]) # x,y,z,w
         self.R = R.from_quat(self.quad)
         self.R_m = self.R.as_matrix()
+        self.cnt = 0
+        self.num = 0
 
         # self.odom = Odometry()
+        self.const_vel_B = np.array([[0.5], [0.0], [0.005]])
         self.vel_B = np.zeros([3,1])
-        self.vel_W = np.zeros([3,1])
+        self.vel_W = np.zeros([4,1])
+        self.ref_vel = np.zeros([4,1])
+        self.ref_vel_filter = np.zeros([4,1])
         self.vel_W_history = []  # 存储历史速度数据
         self.ref_vel_history = []  # 存储历史参考速度数据
+        self.ref_const_vel_history = []  # 存储历史参考速度数据
 
         self.time = rospy.Time.now()
         self.control_command = ControlCommand()
@@ -104,41 +115,48 @@ class QuadrotorController(object):
         self.vel_B[0] = odom_msg.twist.twist.linear.x
         self.vel_B[1] = odom_msg.twist.twist.linear.y
         self.vel_B[2] = odom_msg.twist.twist.linear.z
-        self.vel_W = self.R_m.dot(self.vel_B)
+        self.vel_W[0:3,:] = self.R_m.dot(self.vel_B)
+        self.vel_W[3] = odom_msg.twist.twist.angular.z
         # print("[INFO] estimated vel_W is:", self.vel_W)
     
     def refVelMarkerPointCallback(self, ref_vel_msg: xyzyawVel, marker_msg: point_xyz):
+        if(self.stop): return
         print("[INFO] estimated quant w,x,y,z is:", self.quad)
         print("[INFO] estimated vel_W is:", self.vel_W)
         print("[INFO] reference_vel is:", ref_vel_msg)
-        x_current = np.array([0.0, 0.0, 1, self.quad[3], self.quad[0], self.quad[1], self.quad[2], self.vel_W[0][0], self.vel_W[1][0], self.vel_W[2][0], 
+        if(ref_vel_msg.Vx == float("nan") or ref_vel_msg.Vy == float("nan") or ref_vel_msg.Vz == float("nan")): return
+        self.x_current = np.array([0.0, 0.0, 1, self.quad[3], self.quad[0], self.quad[1], self.quad[2], self.vel_W[0][0], self.vel_W[1][0], self.vel_W[2][0], 
                               marker_msg.p1_x, marker_msg.p1_y, marker_msg.p1_z, marker_msg.p2_x, marker_msg.p2_y, marker_msg.p2_z,
                               marker_msg.p3_x, marker_msg.p3_y, marker_msg.p3_z, marker_msg.p4_x, marker_msg.p4_y, marker_msg.p4_z])
         # solve ocp for a fixed reference
-        self.acados_solver.set(0, "lbx", x_current)
-        self.acados_solver.set(0, "ubx", x_current)
+        self.acados_solver.set(0, "lbx", self.x_current)
+        self.acados_solver.set(0, "ubx", self.x_current)
         # 设置acados_solver的reference
+        self.ref_vel = np.array([[ref_vel_msg.Vx], [ref_vel_msg.Vy], [1.5*ref_vel_msg.Vz], [ref_vel_msg.Vyaw]])
+        self.ref_vel_filter[0:3,:] = self.vel_W[0:3,:] + self.alpha * (self.ref_vel[0:3,:] - self.vel_W[0:3,:])
+        self.ref_vel_filter[3] = self.vel_W[3] + self.beta * (self.ref_vel[3] - self.vel_W[3])
+        # self.ref_vel_filter[0:3,:] = self.vel_W[0:3,:] + self.alpha * (self.ref_vel[0:3,:] - self.vel_W[0:3,:])
         # 将所有阶段的数据存储在一个numpy数组中
         yref_all = np.zeros((self.N, 26))
-        yref_all[:, 7] = ref_vel_msg.Vx
-        yref_all[:, 8] = ref_vel_msg.Vy
-        yref_all[:, 9] = ref_vel_msg.Vz
+        yref_all[:, 7] = self.ref_vel_filter[0, 0]
+        yref_all[:, 8] = self.ref_vel_filter[1, 0]
+        yref_all[:, 9] = self.ref_vel_filter[2, 0]
         # yref_all[:, 10] = 0.0
         # yref_all[:, 11] = 0.0
-        yref_all[:, 12] = 1.0
+        yref_all[:, 12] = 3.0
         # yref_all[:, 13] = 0.0
         # yref_all[:, 14] = 0.0
-        yref_all[:, 15] = 1.0
+        yref_all[:, 15] = 3.0
         # yref_all[:, 16] = 0.0
         # yref_all[:, 17] = 0.0
-        yref_all[:, 18] = 1.0
+        yref_all[:, 18] = 3.0
         # yref_all[:, 19] = 0.0
         # yref_all[:, 20] = 0.0
-        yref_all[:, 21] = 1.0
+        yref_all[:, 21] = 3.0
         yref_all[:, 22] = 9.81
         yref_all[:, 23] = 0.0
         yref_all[:, 24] = 0.0
-        yref_all[:, 25] = ref_vel_msg.Vyaw
+        yref_all[:, 25] = self.ref_vel_filter[3, 0]
         
 
         # 使用numpy的切片操作来设置每个阶段的数据
@@ -151,14 +169,14 @@ class QuadrotorController(object):
         qx_e = 0.0
         qy_e = 0.0
         qz_e = 0.0
-        vx_e = ref_vel_msg.Vx
-        vy_e = ref_vel_msg.Vy
-        vz_e = ref_vel_msg.Vz
+        vx_e = self.ref_vel_filter[0, 0]
+        vy_e = self.ref_vel_filter[1, 0]
+        vz_e = self.ref_vel_filter[2, 0]
 
         yref_N = np.array([x_e, y_e, z_e, qw_e, qx_e,
                            qy_e, qz_e, vx_e, vy_e, vz_e,
-                           0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
-                           0.0, 0.0, 1.0, 0.0, 0.0, 1.0])
+                           0.0, 0.0, 3.0, 0.0, 0.0, 3.0,
+                           0.0, 0.0, 3.0, 0.0, 0.0, 3.0])
         self.acados_solver.set(self.N, "yref", yref_N)
 
         comp_time = time.time()
@@ -177,20 +195,21 @@ class QuadrotorController(object):
         self.time = rospy.Time.now()
         self.publishCommand(u0)
         # simulate the system
-        self.acados_integrator.set("x", x_current)
-        self.acados_integrator.set("u", u0)
-        status = self.acados_integrator.solve()
-        if status != 0:
-            raise Exception(
-                'acados integrator returned status {}. Exiting.'.format(status))
+        # self.acados_integrator.set("x", self.x_current)
+        # self.acados_integrator.set("u", u0)
+        # status = self.acados_integrator.solve()
+        # if status != 0:
+        #     raise Exception(
+        #         'acados integrator returned status {}. Exiting.'.format(status))
 
-        # get state
-        print("[PREDICTION] predict state:", self.acados_integrator.get("x")[10:])
+        # # get state
+        # print("[PREDICTION] predict state:", self.acados_integrator.get("x")[10:])
         self.iter += 1
 
         # plot the ref and cur velocity
+        print("[INFO] self.vel_W:", self.vel_W)
         self.vel_W_history.append(self.vel_W)  # 存储历史速度数据
-        self.ref_vel_history.append([ref_vel_msg.Vx, ref_vel_msg.Vy, ref_vel_msg.Vz])  # 存储历史参考速度数据
+        self.ref_vel_history.append([ref_vel_msg.Vx, ref_vel_msg.Vy, ref_vel_msg.Vz, ref_vel_msg.Vyaw])  # 存储历史参考速度数据
         
         # print the computation times
         print("Total computation time: {}".format(self.tot_comp_sum))
@@ -204,12 +223,82 @@ class QuadrotorController(object):
         self.control_command.bodyrates = bodyratesToGeometry(u0)
         self.control_command.collective_thrust = u0[0]
         print("[INFO] OUTPUT is:\nthrust: ", self.control_command.collective_thrust, "\nbodyrates: ", self.control_command.bodyrates)
-        # TO BE TEST
         self.control_command_pub.publish(self.control_command)
     
-    # 在QuadrotorController类外面
+    def publishConstantCommand(self):
+        self.x_current = np.array([0.0, 0.0, 1, self.quad[3], self.quad[0], self.quad[1], self.quad[2], self.vel_W[0][0], self.vel_W[1][0], self.vel_W[2][0], 
+                              0, 0, 3, 0, 0, 3,
+                              0, 0, 3, 0, 0, 3])
+        # solve ocp for a fixed reference
+        self.acados_solver.set(0, "lbx", self.x_current)
+        self.acados_solver.set(0, "ubx", self.x_current)
+
+        # 设置acados_solver的reference
+        const_vel_W = self.R_m.dot(self.const_vel_B)
+        self.ref_vel[0:3, :] = const_vel_W
+        self.ref_vel[3, 0] = 0.0
+        self.ref_vel_filter[0:3,:] = self.vel_W[0:3,:] + self.alpha * (self.ref_vel[0:3,:] - self.vel_W[0:3,:])
+        self.ref_vel_filter[3] = self.vel_W[3] + self.beta * (self.ref_vel[3] - self.vel_W[3])
+        # 将所有阶段的数据存储在一个numpy数组中
+        yref_all = np.zeros((self.N, 26))
+        yref_all[:, 7] = self.ref_vel_filter[0, 0]
+        yref_all[:, 8] = self.ref_vel_filter[1, 0]
+        yref_all[:, 9] = self.ref_vel_filter[2, 0]
+        # yref_all[:, 10] = 0.0
+        # yref_all[:, 11] = 0.0
+        yref_all[:, 12] = 3.0
+        # yref_all[:, 13] = 0.0
+        # yref_all[:, 14] = 0.0
+        yref_all[:, 15] = 3.0
+        # yref_all[:, 16] = 0.0
+        # yref_all[:, 17] = 0.0
+        yref_all[:, 18] = 3.0
+        # yref_all[:, 19] = 0.0
+        # yref_all[:, 20] = 0.0
+        yref_all[:, 21] = 3.0
+        yref_all[:, 22] = 9.81
+        yref_all[:, 23] = 0.0
+        yref_all[:, 24] = 0.0
+        yref_all[:, 25] = self.ref_vel_filter[3, 0]
+        
+        # 使用numpy的切片操作来设置每个阶段的数据
+        for j in range(self.N):
+            self.acados_solver.set(j, "yref", yref_all[j])
+        x_e  = 0.0
+        y_e  = 0.0
+        z_e  = 0.0
+        qw_e = 1.0
+        qx_e = 0.0
+        qy_e = 0.0
+        qz_e = 0.0
+        vx_e = self.ref_vel_filter[0, 0]
+        vy_e = self.ref_vel_filter[1, 0]
+        vz_e = self.ref_vel_filter[2, 0]
+
+        yref_N = np.array([x_e, y_e, z_e, qw_e, qx_e,
+                           qy_e, qz_e, vx_e, vy_e, vz_e,
+                           0.0, 0.0, 3.0, 0.0, 0.0, 3.0,
+                           0.0, 0.0, 3.0, 0.0, 0.0, 3.0])
+        self.acados_solver.set(self.N, "yref", yref_N)
+
+        comp_time = time.time()
+        status = self.acados_solver.solve()
+        if status != 0:
+            print("acados returned status {} in closed loop iteration {}.".format(status, iter))
+
+        # manage timings
+        elapsed = time.time() - comp_time
+        self.tot_comp_sum += elapsed
+        if elapsed > self.tcomp_max:
+            self.tcomp_max = elapsed
+
+        # get solution from acados_solver
+        u0 = self.acados_solver.get(0, "u")
+        self.time = rospy.Time.now()
+        self.publishCommand(u0)
+    
     def plotVelocities(self):
-        fig, axs = plt.subplots(3, 1, figsize=(8, 6))
+        fig, axs = plt.subplots(3, 1, figsize=(12, 9))
         axs[0].plot([v[0] for v in self.vel_W_history], label='Actual Vx')
         axs[0].plot([v[0] for v in self.ref_vel_history], label='Reference Vx')
         axs[0].set_ylabel('Vx [m/s]')
@@ -222,6 +311,10 @@ class QuadrotorController(object):
         axs[2].plot([v[2] for v in self.ref_vel_history], label='Reference Vz')
         axs[2].set_ylabel('Vz [m/s]')
         axs[2].legend()
+        # axs[3].plot([v[2] for v in self.vel_W_history], label='Actual Vyaw')
+        # axs[3].plot([v[2] for v in self.ref_vel_history], label='Reference Vyaw')
+        # axs[3].set_ylabel('Vyaw [m/s]')
+        # axs[3].legend()
         plt.show()
 
     def target_reached_callback(self, msg):
@@ -229,20 +322,41 @@ class QuadrotorController(object):
 
     def get_reached(self):
         return self.target_reached
+    
+    def stop_publishThrust(self):
+        if(self.stop == False):
+            self.cnt += 1
+            # self.ref_const_vel_horizon = [0.0 for _ in range(self.horizon)]
+        self.stop = True
+        self.publishConstantCommand()
+    
+    def setContinue(self):
+        if(self.stop == True):
+            print("[INFO] cnt!!!!!!!!!!!!!!!!! is:", self.cnt)
+            self.num = 0
+        #     self.ref_vel_horizon = [0.0 for _ in range(self.horizon)]
+        self.stop = False
+        # self.publishConstantCommand()
+
+    def getCnt(self):
+        return self.cnt
+
 
 if __name__ == "__main__":
     rospy.init_node('acados_mpc_control', anonymous=True)
-    quadrotorController = QuadrotorController(3, 10)
+    quadrotorController = QuadrotorController(2, 4)
     rate = rospy.Rate(50)  # 设置循环频率为50Hz
     while not rospy.is_shutdown():
         # 在这里执行其他操作，例如检查程序是否应该退出
         if quadrotorController.get_reached():
-            break
-        # 调用spinOnce()函数处理所有的回调函数
-        try:
-            rospy.rostime.wallsleep(0.01)
-        except rospy.exceptions.ROSTimeMovedBackwardsException:
-            pass
+            quadrotorController.stop_publishThrust()
+        else:
+            quadrotorController.setContinue()
+        
+        if quadrotorController.getCnt()==4:
+            continue
+            # TODO:plot results and stop the quadrotor
+            # break
         # 控制循环的频率
         rate.sleep()
     quadrotorController.plotVelocities()

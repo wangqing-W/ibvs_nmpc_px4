@@ -116,7 +116,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES ibvs_pkg
+ LIBRARIES ibvs_pkg
  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport mav_msgs roscpp rospy sensor_msgs std_msgs trajectory_msgs message_runtime custom_msgs
 #  DEPENDS system_lib
 )

@@ -41,7 +41,7 @@ namespace circle_detection{
             CircleDetection(ros::NodeHandle nh);
             ~CircleDetection();
             // Detect Result
-            void detectRing(cv::Mat depth_buf, bool desired = false);
+            bool detectRing(cv::Mat depth_buf, bool desired = false);
             std::pair<Eigen::Vector3d, Eigen::Vector2d> getResult(){
                 return ring_result;
             }
@@ -51,6 +51,7 @@ namespace circle_detection{
             ros::Subscriber sub_depthimg;
             ros::Publisher pub_recg;
             cv::Mat depth_buf;
+            bool havering = false;
             const double camera_fx_ = 268.5;
             const double camera_cx_ = 320;
             const double camera_cy_ = 240;
@@ -67,9 +68,9 @@ namespace circle_detection{
             cv::Mat EqualizeImg(cv::Mat src);
 
             // //for Depth Detection
-            void getDepth2Circles(const std::vector<mCircle>&circles);
-            void getDepth1Circle1Ellipse(const std::vector<mCircle> &circles, const std::vector<mEllipse> &ellipses);
-            void getDepth2Ellipses(const std::vector<mEllipse> &ellipses);
+            bool getDepth2Circles(const std::vector<mCircle>&circles);
+            bool getDepth1Circle1Ellipse(const std::vector<mCircle> &circles, const std::vector<mEllipse> &ellipses);
+            bool getDepth2Ellipses(const std::vector<mEllipse> &ellipses);
 
             // //utils
             bool InsideEllipse(const mEllipse &ellipse,float ptx, float pty);

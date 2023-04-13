@@ -204,10 +204,14 @@ Mat qe2(Mat p1s,                     // Points of the target image in the sphere
         p2_cen = p2_cen / double(num);
         double delta = atan(-p2_cen.at<double>(0, 0)/p2_cen.at<double>(0, 2)),
                delta_d = atan(-p1_cen.at<double>(0, 0)/p1_cen.at<double>(0, 2));
-        q_e2.at<double>(0, 0) = cos((delta-delta_d)/2);
+        // q_e2.at<double>(0, 0) = cos((delta-delta_d)/2);
+        // q_e2.at<double>(0, 1) = 0;
+        // q_e2.at<double>(0, 2) = 0;
+        // q_e2.at<double>(0, 3) = sin((delta-delta_d)/2);
+        q_e2.at<double>(0, 0) = cos(delta/2);
         q_e2.at<double>(0, 1) = 0;
         q_e2.at<double>(0, 2) = 0;
-        q_e2.at<double>(0, 3) = sin((delta-delta_d)/2);
+        q_e2.at<double>(0, 3) = sin(delta/2);
         // cout << "q_cen,x,z:" << p_cen.at<double>(0, 0) << " " << p_cen.at<double>(0, 2) << endl;
         // cout << "q_e2,w,z:" << q_e2.at<double>(0, 0) << " " << q_e2.at<double>(0, 3) << endl;
         return q_e2;
@@ -331,7 +335,8 @@ int GUO(Mat img,                                      // Color Image to be proce
         // state.Vroll  = (float) U.at<double>(3,0);
         // state.Vpitch = (float) U.at<double>(4,0);
         // state.Vyaw = (float)U.at<double>(5, 0);
-        state.Vyaw = kz * (-state.Yaw + M_PI/6);
+        cout << "[INFO] state.Yaw = " << state.Yaw;
+        state.Vyaw = kz * (-state.Yaw/* + M_PI/6*/);
         // Get the control law with yaw in rotation
         qe2(p1s, p2s, q_e2);
         state.Vyaw = 2*kz*sgn(q_e2.at<double>(0, 0))*q_e2.at<double>(0, 3);

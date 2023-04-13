@@ -2,8 +2,8 @@ SAVE_DESIRED_POS: 0
 SAVE_IMAGES: 0
 
 # # topic info
-# d435i_depth_topic: "/d435/depth/image_raw"
-# color_depth_topic: "/d435/color/image_raw"
+d435i_depth_topic: "/d435/depth/image_raw"
+d435i_color_topic: "/d435/color/image_raw"
 
 # The camera intrinsic parameters matrix
 # 3x3 matrix
@@ -21,13 +21,13 @@ dt: 0.01
 # Gain on linear velocities
 ############################################################
 # Para el control #1
-gainv: .5
+gainv: 1.6
 ############################################################
 # Para el control #2
 # gain_v: .4
 
 # Gain on angular velocities
-gainw: 0.5
+gainw: 1.2
 
 # Threshold on the feature position error, used to stop the visual control
 feature_error_threshold: .06

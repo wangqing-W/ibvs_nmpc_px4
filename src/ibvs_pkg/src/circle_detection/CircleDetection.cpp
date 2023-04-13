@@ -47,7 +47,7 @@ void CircleDetection::init(){
 #endif
 
 
-void CircleDetection::detectRing(cv::Mat depth, bool desired){
+bool CircleDetection::detectRing(cv::Mat depth, bool desired){
     ros::Time t0, t1;
     double get_time, remove_time, int_time, equ_time, detect_time, draw_time, circle_time;
     // t0 = ros::Time::now();
@@ -78,7 +78,12 @@ void CircleDetection::detectRing(cv::Mat depth, bool desired){
     int noCircles = testEDCircles.getCirclesNo();
 	// std::cout << "Number of circles: " << noCircles << std::endl;
     // ROS_INFO("circleDetected");
+    if (testEDCircles.getCirclesNo() == 0 && testEDCircles.getEllipsesNo() ==0 ){
+        ROS_INFO("No circles");
+        return false;
+    }
     cv::Mat circleImg = testEDCircles.drawResult(true, ImageStyle::BOTH);
+    // ROS_INFO("getDrawCirlce");
     if (Display) {
         if(!desired){
             // cout << depth_buf.at<uint16_t>(depth_buf.rows/2, depth_buf.cols/2);
@@ -98,15 +103,8 @@ void CircleDetection::detectRing(cv::Mat depth, bool desired){
     }
     draw_time = (ros::Time::now()-t0).toSec();
     t0 = ros::Time::now();
-    // ROS_INFO("draw");
+    ROS_INFO("get circles");
 
-
-    
-
-    if (testEDCircles.getCirclesNo() == 0 && testEDCircles.getEllipsesNo() ==0 ){
-        ROS_INFO("No circles");
-        return;
-    }
     if ((testEDCircles.getCirclesNo() + testEDCircles.getEllipsesNo()) == 2){
         vector<mCircle> circles = testEDCircles.getCircles();
         vector<mEllipse> ellipses = testEDCircles.getEllipses();
@@ -126,7 +124,7 @@ void CircleDetection::detectRing(cv::Mat depth, bool desired){
     circle_time = (ros::Time::now()-t0).toSec();
     // ROS_INFO("Get image time: %.4f\n Remove time:%.4f\n toInt time:%.4f\n Equ time:%.4f\n Detect time:%.4f\n Draw time:%.4f\n Circle time:%.4f\n ", 
     //           get_time, remove_time, int_time, equ_time, detect_time, draw_time, circle_time);
-
+    return false;
 }
 //converting from topic to depth image
 #if REALRACE
@@ -214,7 +212,7 @@ cv::Mat CircleDetection::EqualizeImg(cv::Mat src){
 }
 
 
-void CircleDetection::getDepth2Circles(const std::vector<mCircle> &circles){
+bool CircleDetection::getDepth2Circles(const std::vector<mCircle> &circles){
     ROS_INFO("Detect 2 circles"); 
     cv::Point2d center0 = circles[0].center;
     cv::Point2d center1 = circles[1].center;
@@ -224,17 +222,17 @@ void CircleDetection::getDepth2Circles(const std::vector<mCircle> &circles){
     int r = 0;
     if (abs(rmax - rmin) < hypot((center0.x - center1.x), (center0.y - center1.y))) {
         ROS_INFO("Crossing circles, not ring, skip"); 
-        return;
+        return false;
     }
     if (rmax > 2*rmin) {
         ROS_WARN("Abnormal ring size, skip");
-        return;
+        return false;
     }
 
     cv::Point2d RingCenter((center0.x + center1.x)/2, (center0.y + center1.y)/2);
     if (RingCenter.x < 0 || RingCenter.x > IMAGE_WIDTH || RingCenter.y < 0 || RingCenter.y > IMAGE_HEIGHT) {
         ROS_INFO("Half of the circle outside, skip");
-        return;
+        return false;
     }
     
 
@@ -265,7 +263,7 @@ void CircleDetection::getDepth2Circles(const std::vector<mCircle> &circles){
     }
     if (idx <= 0){
         ROS_INFO("Not enough points");
-        return;
+        return false;
     }
     Centerdepth = Centerdepth / float(idx);
     Eigen::Vector3d CenterPt = FromImage2CameraFrame(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth));
@@ -280,10 +278,11 @@ void CircleDetection::getDepth2Circles(const std::vector<mCircle> &circles){
     }
     PublishResult(CenterPt);
     ring_result = make_pair(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth), Eigen::Vector2d((rmax+rmin)/2, (rmax+rmin)/2));
+    return true;
 }
 
 //-------------------if 1 circle and 1 ellipse-------------
-void CircleDetection::getDepth1Circle1Ellipse(const std::vector<mCircle> &circles, const std::vector<mEllipse> &ellipses){
+bool CircleDetection::getDepth1Circle1Ellipse(const std::vector<mCircle> &circles, const std::vector<mEllipse> &ellipses){
     ROS_INFO("Detect 1 circle and 1 ellipse"); 
     cv::Point2d center0 = circles[0].center;
     cv::Point2d center1 = ellipses[0].center;
@@ -291,13 +290,13 @@ void CircleDetection::getDepth1Circle1Ellipse(const std::vector<mCircle> &circle
     int r = 0;
     if (abs(circles[0].r - ellipses[0].axes.width) < hypot((center0.x - center1.x), (center0.y - center1.y)) &&  abs(circles[0].r -ellipses[0].axes.height) < hypot((center0.x - center1.x), (center0.y - center1.y))) {
         ROS_INFO("Crossing circle and ellipse, not ring, skip");
-        return;
+        return false;
     }
 
     cv::Point2d RingCenter((center0.x + center1.x)/2, (center0.y + center1.y)/2);
     if (RingCenter.x < 0 || RingCenter.x > IMAGE_WIDTH || RingCenter.y < 0 || RingCenter.y > IMAGE_HEIGHT) {
         ROS_INFO("Half of the circle outside, skip");
-        return;
+        return false;
     }
     
     // std::vector<Eigen::Vector3d> candidateCameraPt;
@@ -325,7 +324,7 @@ void CircleDetection::getDepth1Circle1Ellipse(const std::vector<mCircle> &circle
     }
     if (idx <= 0){
         ROS_INFO("Not enough points");
-        return;
+        return false;
     }
     Centerdepth = Centerdepth / float(idx);
     Eigen::Vector3d CenterPt = FromImage2CameraFrame(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth));
@@ -341,10 +340,11 @@ void CircleDetection::getDepth1Circle1Ellipse(const std::vector<mCircle> &circle
     PublishResult(CenterPt);
     ring_result = make_pair(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth), 
                             Eigen::Vector2d((circles[0].r+ellipses[0].axes.width)/2, (circles[0].r+ellipses[0].axes.height)/2));
+    return true;
 }
 
 //-------------------if 2 ellipses----------------
-void CircleDetection::getDepth2Ellipses(const std::vector<mEllipse> &ellipses){
+bool CircleDetection::getDepth2Ellipses(const std::vector<mEllipse> &ellipses){
     ROS_INFO("Detect 2 ellipses"); 
     cv::Point2d center0 = ellipses[0].center;
     cv::Point2d center1 = ellipses[1].center;
@@ -353,13 +353,13 @@ void CircleDetection::getDepth2Ellipses(const std::vector<mEllipse> &ellipses){
     //may cause problem
     if (abs(ellipses[1].axes.height - ellipses[0].axes.height) < hypot((center0.x - center1.x), (center0.y - center1.y))) {
         ROS_INFO("Crossing circle and ellipse, not ring, skip");
-        return;
+        return false;
     }
 
     cv::Point2d RingCenter((center0.x + center1.x)/2, (center0.y + center1.y)/2);
     if (RingCenter.x < 0 || RingCenter.x > IMAGE_WIDTH || RingCenter.y < 0 || RingCenter.y > IMAGE_HEIGHT) {
         ROS_INFO("Half of the ellipse outside, skip");
-        return;
+        return false;
     }
     
     // std::vector<Eigen::Vector3d> candidateCameraPt;
@@ -387,7 +387,7 @@ void CircleDetection::getDepth2Ellipses(const std::vector<mEllipse> &ellipses){
     }
     if (idx <= 0){
         ROS_INFO("Not enough points");
-        return;
+        return false;
     }
     Centerdepth = Centerdepth / float(idx);
     Eigen::Vector3d CenterPt = FromImage2CameraFrame(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth));
@@ -405,6 +405,7 @@ void CircleDetection::getDepth2Ellipses(const std::vector<mEllipse> &ellipses){
     PublishResult(CenterPt);
     ring_result = make_pair(Eigen::Vector3d(RingCenter.x, RingCenter.y, Centerdepth), 
                             Eigen::Vector2d((ellipses[0].axes.width+ellipses[1].axes.width)/2, (ellipses[0].axes.height+ellipses[1].axes.height)/2));
+    return true;
 }
 
 

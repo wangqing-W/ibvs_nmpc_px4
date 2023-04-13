@@ -13,7 +13,7 @@ def drone_model():
     g = 9.81 # m/s^2
     epsilon = 0.01
     # pixel range, u_rang = c_u / fa = 320 / 462.138 = 0.69, v_rang = c_v / fa = 240 / 462.138 = 0.46
-    u_range = 0.60; v_range = 0.40
+    u_range = 0.69; v_range = 0.46; z_max = 3; z_min = 0.8
     ## CasAdi Model
     # set up states and controls
     px = MX.sym("px")
@@ -75,9 +75,12 @@ def drone_model():
                     p1_udot, p1_vdot, p1_zdot, p2_udot, p2_vdot, p2_zdot, p3_udot, p3_vdot, p3_zdot, p4_udot, p4_vdot, p4_zdot)
     
     # intermediate variables
-    vb_x = vx * (1 - 2*qy*qy - 2*qz*qz) + vy * 2*(qx*qy - qw*qz) + vz * 2*(qx*qz + qw*qy)
-    vb_y = vx * 2*(qx*qy + qw*qz) + vy * (1 - 2*qx*qx - 2*qz*qz) + vz * 2*(qy*qz - qw*qx)
-    vb_z = vx * 2*(qx*qz - qw*qy) + vy * 2*(qy*qz + qw*qx) + vz * (1 - 2*qx*qx - 2*qy*qy)
+    # vb_x = vx * (1 - 2*qy*qy - 2*qz*qz) + vy * 2*(qx*qy - qw*qz) + vz * 2*(qx*qz + qw*qy)
+    # vb_y = vx * 2*(qx*qy + qw*qz) + vy * (1 - 2*qx*qx - 2*qz*qz) + vz * 2*(qy*qz - qw*qx)
+    # vb_z = vx * 2*(qx*qz - qw*qy) + vy * 2*(qy*qz + qw*qx) + vz * (1 - 2*qx*qx - 2*qy*qy)
+    vb_x = vx * (1 - 2*qy*qy - 2*qz*qz) + vy * 2*(qx*qy + qw*qz) + vz * 2*(qx*qz - qw*qy)
+    vb_y = vx * 2*(qx*qy - qw*qz) + vy * (1 - 2*qx*qx - 2*qz*qz) + vz * 2*(qy*qz + qw*qx)
+    vb_z = vx * 2*(qx*qz + qw*qy) + vy * 2*(qy*qz - qw*qx) + vz * (1 - 2*qx*qx - 2*qy*qy)
 
     # algebraic variables 
     z = vertcat([])
@@ -120,12 +123,14 @@ def drone_model():
     # input bounds
     
     # model.thrust_max = 0.9 * ((46.3e-3 * g)) # 90 % of max_thrust (max_thrust = 57g in research papers) ----- ( max_thrsut = 46g when tested) 
-    model.thrust_max = 1.5 * g
-    model.thrust_min = 0.1 * model.thrust_max
+    model.thrust_max = 1.6 * g
+    model.thrust_min = 0.2 * model.thrust_max
     model.u_max = u_range
     model.u_min = -u_range
     model.v_max = v_range
     model.v_min = -v_range
+    model.z_max = z_max
+    model.z_min = z_min
 
     # model.torque_max = 1 / 2 * model.thrust_max * length # divided by 2 since we only have 2 propellers in a planar quadrotor
     # model.torque_max = 0.1 * model.torque_max # keeping 10% margin for steering torque. This is done because the torque_max 

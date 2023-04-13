@@ -48,7 +48,7 @@ def acados_settings(Ts, Tf, N):
     Q[6][6] = 0  # weight of qz
     Q[7][7] = 150  # weight of vx
     Q[8][8] = 150 # weight of vy
-    Q[9][9] = 150  # weight of vz
+    Q[9][9] = 750  # weight of vz
     Q[10][10] = 0  # weight of p1_u
     Q[11][11] = 0  # weight of p1_v
     Q[12][12] = 0  # weight of p1_z
@@ -63,10 +63,10 @@ def acados_settings(Ts, Tf, N):
     Q[21][21] = 0  # weight of p4_z
 
     R = np.eye(nu)
-    R[0][0] = 1e0  # weight of Thrust
+    R[0][0] = 1e1  # weight of Thrust
     R[1][1] = 1e1  # weight of wx
     R[2][2] = 1e1  # weight of wy
-    R[3][3] = 1e2  # weight of wz
+    R[3][3] = 5e2  # weight of wz
 
     # Qe = np.eye(ny_e)
     Qe = np.eye(nx)
@@ -124,8 +124,8 @@ def acados_settings(Ts, Tf, N):
     ocp.cost.yref_e = x_ref
 
     # set constraints on thrust and angular velocities
-    ocp.constraints.lbu   = np.array([model.thrust_min, -0.5*np.pi, -0.5*np.pi, -0.3*np.pi])
-    ocp.constraints.ubu   = np.array([model.thrust_max,  0.5*np.pi,  0.5*np.pi,  0.3*np.pi])
+    ocp.constraints.lbu   = np.array([model.thrust_min, -0.4*np.pi, -0.4*np.pi, -0.4*np.pi])
+    ocp.constraints.ubu   = np.array([model.thrust_max,  0.4*np.pi,  0.4*np.pi,  0.4*np.pi])
     ocp.constraints.idxbu = np.array([0,1,2,3])
 
     # TODO:Path constraints
@@ -143,9 +143,9 @@ def acados_settings(Ts, Tf, N):
     #         return np.array([x[2] - 2])
     # model_ac.con_phi_expr = lambda x, t, p: np.concatenate((path_constraint1(x, p, t), path_constraint2(x, p, t)))
 
-    ocp.constraints.lbx     = np.array([model.u_min, model.v_min, model.u_min, model.v_min, model.u_min, model.v_min, model.u_min, model.v_min])
-    ocp.constraints.ubx     = np.array([model.u_max, model.v_max, model.u_max, model.v_max, model.u_max, model.v_max, model.u_max, model.v_max])
-    ocp.constraints.idxbx   = np.array([10, 11, 13, 14, 16, 17, 19, 20])
+    ocp.constraints.lbx     = np.array([model.u_min, model.v_min, model.z_min, model.u_min, model.v_min, model.z_min, model.u_min, model.v_min, model.z_min, model.u_min, model.v_min, model.z_min])
+    ocp.constraints.ubx     = np.array([model.u_max, model.v_max, model.z_max, model.u_max, model.v_max, model.z_max, model.u_max, model.v_max, model.z_max, model.u_max, model.v_max, model.z_max])
+    ocp.constraints.idxbx   = np.array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
 
     '''
     ocp.constraints.lbx = np.array([-15.0, -15.0, -15.0]) # lower bounds on the velocity states

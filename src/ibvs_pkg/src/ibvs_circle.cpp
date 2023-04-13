@@ -14,17 +14,18 @@ void ibvsCircle::init(ros::NodeHandle &nh)
 {
     contIMG = 0;
     state.load(nh);
+    initCamTopics(nh);
     workspace = "/home/zyh/ibvs_rpg_ws";
     color_dir = "/src/ibvs_pkg/target/desired_c.png";
     depth_dir = "/src/ibvs_pkg/target/desired_d.png";
-    depth_topic = "/d435/depth/image_raw";
-    color_topic = "/d435/color/image_raw";
-    initTopics(nh);
     quad_sub = nh.subscribe("/hummingbird/imu", 1, &ibvsCircle::quadCallback, this, ros::TransportHints().tcpNoDelay());
+    pos_sub = nh.subscribe("/hummingbird/ground_truth/pose", 1, &ibvsCircle::poseCallback, this, ros::TransportHints().tcpNoDelay());
+    target_reached_pub = nh.advertise<std_msgs::Bool>("target_reached", 1);
 	puvz_pub = nh.advertise<ibvs_pkg::point_xyz>("/hummingbird/markerpoint", 1);
     vel_pub = nh.advertise<ibvs_pkg::xyzyawVel>("/hummingbird/reference_vel", 1);
     vel_msg.header.frame_id = "reference_velocity";
 	puvz_msg.header.frame_id = "marker_uvz";
+    target_reached_msg.data = false;
     desired_depth = imread(workspace + depth_dir, IMREAD_UNCHANGED);
     desired_color = imread(workspace + color_dir, IMREAD_COLOR);
     state.desired_configuration.img = desired_color;
@@ -47,12 +48,28 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
     Mat actual_depth = getDepthImageFromMsg(depth_msg);
     // resize(actual_depth,depth_actual,Size(actual.cols, actual.rows),0,0,INTER_LINEAR);
     ROS_INFO("[INFO] Image received");
+    // 如果处于中间阶段
+    if(target_reached_msg.data)
+    {
+        ROS_INFO("middle stage!!");
+        bool flag;
+        flag = circleDetection.detectRing(actual_depth, false);
+        if(!flag) ROS_INFO("middle stage —— NOOOOO!!");
+        else{
+            ROS_INFO("middle stage —— YESSSS!!");
+            ring_actual = circleDetection.getResult();
+            ROS_INFO("ring_actual.first:%f, %f, %f", ring_actual.first[0], ring_actual.first[1], ring_actual.first[2]);
+            if(ring_actual.first[2] > 2000/**/ && ring_actual.first[2] < 2850) target_reached_msg.data = false;
+        }
+        target_reached_pub.publish(target_reached_msg);
+        return;
+    }
     double ring_x, ring_y, ring_w, ring_h;
     if (contIMG < 3)
     {
         contIMG++;
         cout << endl
-                    << "[INFO] Detecting circles for initial 3 frames" << endl;
+             << "[INFO] Detecting circles for initial 3 frames" << endl;
         //TODO: detect in the actual image
         circleDetection.detectRing(actual_depth, false);
         ring_actual = circleDetection.getResult();
@@ -60,11 +77,18 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         ring_y = ring_actual.first(1);
         ring_w = ring_actual.second(0);
         ring_h = ring_actual.second(1);
+        vector<Eigen::Vector3d> pc_uv, pd_uv;
+        pd_uv.push_back(Eigen::Vector3d(ring_x, ring_y + ring_h, 1));
+        pd_uv.push_back(Eigen::Vector3d(ring_x + ring_w, ring_y, 1));
+        pd_uv.push_back(Eigen::Vector3d(ring_x, ring_y - ring_h, 1));
+        pd_uv.push_back(Eigen::Vector3d(ring_x - ring_w, ring_y, 1));
+        pc_uv = alignDepth2Color(actual, actual_depth, pd_uv, state.params);
+
         Mat temporal = Mat::zeros(4, 2, CV_32F);
-        temporal.at<Point2f>(0, 0) = Point2f(ring_x, ring_y + ring_h);
-        temporal.at<Point2f>(1, 0) = Point2f(ring_x + ring_w, ring_y);
-        temporal.at<Point2f>(2, 0) = Point2f(ring_x, ring_y - ring_h);
-        temporal.at<Point2f>(3, 0) = Point2f(ring_x - ring_w, ring_y);
+        temporal.at<Point2f>(0, 0) = Point2f(pc_uv[0][0], pc_uv[0][1]);
+        temporal.at<Point2f>(1, 0) = Point2f(pc_uv[1][0], pc_uv[1][1]);
+        temporal.at<Point2f>(2, 0) = Point2f(pc_uv[2][0], pc_uv[2][1]);
+        temporal.at<Point2f>(3, 0) = Point2f(pc_uv[3][0], pc_uv[3][1]);
         temporal.convertTo(matching_result.p2, CV_64F);
         temporal.convertTo(img_points, CV_32F);
 
@@ -208,6 +232,17 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         actual.copyTo(img_old);
         // ROS_INFO("ring_time: %.4f\n align_first_time:%.4f\n align_second_time:%.4f\n pub_vel_time:%.4f\n control_time:%.4f\n draw_time:%.4f\n", 
         //       ring_time, align_first_time, align_second_time, pub_vel_time, control_time, draw_time);
+        contIMG++;
+    }
+    ROS_INFO("matching_result.mean_feature_error:%f", matching_result.mean_feature_error);
+    if (matching_result.mean_feature_error < state.params.feature_threshold && contIMG > 3)
+    {
+        cout << endl
+             << "[INFO] Target reached within the feature threshold and maximum iterations" << endl
+             << endl;
+        target_reached_msg.data = true;
+        target_reached_pub.publish(target_reached_msg);
+        contIMG = 0;
     }
 }
 

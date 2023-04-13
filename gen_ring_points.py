@@ -5,7 +5,7 @@ from math import cos, sin, pi
 xs = []
 ys = []
 x0, y0 = 0, 0  # origin
-r = 0.5        # radius
+r = 0.6        # radius
 for angle in range(0, 360, 20):
     x = x0 + r * cos(angle * pi / 180)
     y = y0 + r * sin(angle * pi / 180)
