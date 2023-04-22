@@ -60,7 +60,7 @@ class QuadrotorController(object):
         self.num = 0
 
         # self.odom = Odometry()
-        self.const_vel_B = np.array([[0.5], [0.0], [0.005]])
+        self.const_vel_B = np.array([[1], [0.0], [0.01]])
         self.vel_B = np.zeros([3,1])
         self.vel_W = np.zeros([4,1])
         self.ref_vel = np.zeros([4,1])
@@ -183,6 +183,8 @@ class QuadrotorController(object):
         status = self.acados_solver.solve()
         if status != 0:
             print("acados returned status {} in closed loop iteration {}.".format(status, iter))
+            self.publishCommand()
+            return
 
         # manage timings
         elapsed = time.time() - comp_time
@@ -191,9 +193,9 @@ class QuadrotorController(object):
             self.tcomp_max = elapsed
 
         # get solution from acados_solver
-        u0 = self.acados_solver.get(0, "u")
+        self.u0 = self.acados_solver.get(0, "u")
         self.time = rospy.Time.now()
-        self.publishCommand(u0)
+        self.publishCommand()
         # simulate the system
         # self.acados_integrator.set("x", self.x_current)
         # self.acados_integrator.set("u", u0)
@@ -216,12 +218,12 @@ class QuadrotorController(object):
         print("Average computation time: {}".format(self.tot_comp_sum / self.iter))
         print("Maximum computation time: {}".format(self.tcomp_max))
 
-    def publishCommand(self, u0):
+    def publishCommand(self):
         self.control_command.header = Header(stamp=self.time)
         self.control_command.armed = True
         self.control_command.expected_execution_time = self.time
-        self.control_command.bodyrates = bodyratesToGeometry(u0)
-        self.control_command.collective_thrust = u0[0]
+        self.control_command.bodyrates = bodyratesToGeometry(self.u0)
+        self.control_command.collective_thrust = self.u0[0]
         print("[INFO] OUTPUT is:\nthrust: ", self.control_command.collective_thrust, "\nbodyrates: ", self.control_command.bodyrates)
         self.control_command_pub.publish(self.control_command)
     
@@ -285,6 +287,8 @@ class QuadrotorController(object):
         status = self.acados_solver.solve()
         if status != 0:
             print("acados returned status {} in closed loop iteration {}.".format(status, iter))
+            self.publishCommand()
+            return
 
         # manage timings
         elapsed = time.time() - comp_time
@@ -293,9 +297,9 @@ class QuadrotorController(object):
             self.tcomp_max = elapsed
 
         # get solution from acados_solver
-        u0 = self.acados_solver.get(0, "u")
+        self.u0 = self.acados_solver.get(0, "u")
         self.time = rospy.Time.now()
-        self.publishCommand(u0)
+        self.publishCommand()
     
     def plotVelocities(self):
         fig, axs = plt.subplots(3, 1, figsize=(12, 9))
@@ -344,7 +348,7 @@ class QuadrotorController(object):
 
 if __name__ == "__main__":
     rospy.init_node('acados_mpc_control', anonymous=True)
-    quadrotorController = QuadrotorController(2, 4)
+    quadrotorController = QuadrotorController(2.5, 5)
     rate = rospy.Rate(50)  # 设置循环频率为50Hz
     while not rospy.is_shutdown():
         # 在这里执行其他操作，例如检查程序是否应该退出

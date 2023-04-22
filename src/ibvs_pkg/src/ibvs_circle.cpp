@@ -59,7 +59,7 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
             ROS_INFO("middle stage —— YESSSS!!");
             ring_actual = circleDetection.getResult();
             ROS_INFO("ring_actual.first:%f, %f, %f", ring_actual.first[0], ring_actual.first[1], ring_actual.first[2]);
-            if(ring_actual.first[2] > 2000/**/ && ring_actual.first[2] < 2850) target_reached_msg.data = false;
+            if(ring_actual.first[2] > 2000/**/ && ring_actual.first[2] < 2800) target_reached_msg.data = false;
         }
         target_reached_pub.publish(target_reached_msg);
         return;
@@ -138,6 +138,7 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         ring_y = ring_actual.first(1);
         ring_w = ring_actual.second(0);
         ring_h = ring_actual.second(1);
+        ROS_INFO("ring_w,h: %f, %f", ring_w, ring_h);
         vector<Eigen::Vector3d> pc_uv, pd_uv;
         pd_uv.push_back(Eigen::Vector3d(ring_x, ring_y + ring_h, 1));
         pd_uv.push_back(Eigen::Vector3d(ring_x + ring_w, ring_y, 1));

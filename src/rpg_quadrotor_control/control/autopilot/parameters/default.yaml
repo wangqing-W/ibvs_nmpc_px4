@@ -26,6 +26,6 @@ reference_state_input_timeout: 0.1 # [s]
 emergency_land_duration: 4   # [s]
 emergency_land_thrust: 9.0 # [m/s^2]
 
-control_command_input_timeout: 0.1 # [s]
+control_command_input_timeout: 0.2 # [s]
 enable_command_feedthrough: false
 predictive_control_lookahead: 2.0 # [s]

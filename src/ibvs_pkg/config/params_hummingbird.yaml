@@ -21,16 +21,16 @@ dt: 0.01
 # Gain on linear velocities
 ############################################################
 # Para el control #1
-gainv: 1.6
+gainv: 2
 ############################################################
 # Para el control #2
 # gain_v: .4
 
 # Gain on angular velocities
-gainw: 1.2
+gainw: 1.5
 
 # Threshold on the feature position error, used to stop the visual control
-feature_error_threshold: .06
+feature_error_threshold: .1
 
 nfeatures: 500
 scaleFactor: 1.2

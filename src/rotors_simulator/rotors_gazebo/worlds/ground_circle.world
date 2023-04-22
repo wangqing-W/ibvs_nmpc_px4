@@ -146,11 +146,11 @@
     </model>
 
     <model name="RING2">
-    <pose>3.5 0.5 1.2 0 0 1.57</pose>
+    <pose>3.5 0.5 1.5 0 0 1.57</pose>
     
     <link name='ring2'>
       <visual name='ring2_visual'>
-        <pose>0 0.015 0 1.57519 0 0</pose>
+        <pose>0 0.015 -0.15 1.57519 0 0</pose>
         <geometry>
           <polyline>
             <height>0.03</height>
@@ -205,7 +205,7 @@
         </material>
       </visual>
       <collision name='ring2_collision'>
-        <pose>0 0.015 0 1.57519 0 0</pose>
+        <pose>0 0.015 -0.15 1.57519 0 0</pose>
         <geometry>
           <polyline>
             <height>0.03</height>
@@ -255,10 +255,10 @@
       </collision>
 
       <visual name="pole2_visual">
-        <pose>0 0 -1.2 0 0 0</pose>
+        <pose>0 0 -1.5 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 1.2</size>
+            <size>0.1 0.1 1.5</size>
           </box>
         </geometry>
         <material>
@@ -269,10 +269,10 @@
             </material>
       </visual>
       <collision name="pole2_collision">
-        <pose>0 0 -1.2 0 0 0</pose>
+        <pose>0 0 -1.5 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 1.2</size>
+            <size>0.1 0.1 1.5</size>
           </box>
         </geometry>
       </collision>
@@ -414,11 +414,11 @@
     </model>
 
     <model name="RING4">
-    <pose>10.5 0.5 1.2 0 0 1.57</pose>
+    <pose>10.5 0.5 1.5 0 0 1.57</pose>
     
     <link name='ring4'>
       <visual name='ring4_visual'>
-        <pose>0 0.015 0 1.57519 0 0</pose>
+        <pose>0 0.015 -0.15 1.57519 0 0</pose>
         <geometry>
           <polyline>
             <height>0.03</height>
@@ -473,7 +473,7 @@
         </material>
       </visual>
       <collision name='ring4_collision'>
-        <pose>0 0.015 0 1.57519 0 0</pose>
+        <pose>0 0.015 -0.15 1.57519 0 0</pose>
         <geometry>
           <polyline>
             <height>0.03</height>
@@ -523,10 +523,10 @@
       </collision>
 
       <visual name="pole4_visual">
-        <pose>0 0 -1.2 0 0 0</pose>
+        <pose>0 0 -1.5 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 1.2</size>
+            <size>0.1 0.1 1.5</size>
           </box>
         </geometry>
         <material>
@@ -537,10 +537,10 @@
             </material>
       </visual>
       <collision name="pole4_collision">
-        <pose>0 0 -1.2 0 0 0</pose>
+        <pose>0 0 -1.5 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 1.2</size>
+            <size>0.1 0.1 1.5</size>
           </box>
         </geometry>
       </collision>
