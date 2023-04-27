@@ -4,11 +4,13 @@ import numpy as np
 
 
 def plotDrone3D(ax,X,q):
-    
+    # for aruco
     l= 0.046 # arm length
-    r = 0.02 # rotor length
-    # l = 0.1
-    # r = 0.04
+    r = 0.04 # rotor length
+
+    # for ring
+    l = 0.2
+    r = 0.16
 
     x = X[0]
     y = X[1]
@@ -114,7 +116,7 @@ def plotStates(t, simX,predX, x, y, z, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/states.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/states.png', dpi=300)
 
     plt.show()
 
@@ -151,7 +153,7 @@ def plotPred(predX,ref_traj):
     plt.tight_layout()
     '''
     if save ==True:
-        fig.savefig('figures/states.png')
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/states.png')
     '''
     plt.show()
 
@@ -188,7 +190,7 @@ def plotSim_pos(t, simX, ref_traj, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/posStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/posStates.png', dpi=300)
 
 
 
@@ -219,7 +221,7 @@ def plotSim_pos_ref_point(t, simX, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/posStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/posStates.png', dpi=300)
 
 
 
@@ -278,7 +280,7 @@ def plotSim3D(simX, ref_traj, save=False):
     X0 = [simX[0,0], simX[0,1], simX[0,2]]
     q0 = [simX[0,3], simX[0,4], simX[0,5], simX[0,6]]
     plotDrone3D(ax,X0,q0)
-    
+
     for step in range(NUM_STEPS):
         if step !=0 and step % MEAS_EVERY_STEPS ==0:
             X = [simX[step,0], simX[step,1], simX[step,2]]
@@ -291,7 +293,7 @@ def plotSim3D(simX, ref_traj, save=False):
     # ax.set_zlim3d(0, 5)
 
     if save == True:
-        fig.savefig('figures/sim3D.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/sim3D.png', dpi=300)
 
 
 
@@ -344,7 +346,7 @@ def plotSim_Angles(t, simX, simEuler, Nsim, save=True):
     ax2.legend()
 
     if save ==True:
-        fig.savefig('figures/angleStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/angleStates.png', dpi=300)
 
 def plotSim_vel(t, simX, Nsim, save=False):
     # figure: container holding the plots (can have multiple plots)
@@ -372,7 +374,7 @@ def plotSim_vel(t, simX, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/velStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/velStates.png', dpi=300)
 
 
 def plotSim_vel_with_ref(t, simX, ref_traj, Nsim, save=False):
@@ -410,7 +412,7 @@ def plotSim_vel_with_ref(t, simX, ref_traj, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/velStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/velStates.png', dpi=300)
 
 
 def plotSim_vel_with_ref_for_imported_trajectory(t, simX, ref_traj, Nsim, save=False):
@@ -449,7 +451,7 @@ def plotSim_vel_with_ref_for_imported_trajectory(t, simX, ref_traj, Nsim, save=F
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/velStates.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/velStates.png', dpi=300)
 
 
 
@@ -470,7 +472,7 @@ def plotThrustInput(t, simU, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/thrustInput.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/thrustInput.png', dpi=300)
 
 def plotThrustInput_with_ref(t, simU, ref_U, Nsim, save=False):
     
@@ -491,7 +493,7 @@ def plotThrustInput_with_ref(t, simU, ref_U, Nsim, save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/thrustInput.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/thrustInput.png', dpi=300)
 
 def plotAngularRatesInputs_with_ref(t, simU,  Nsim, w_ref, save=True):
     
@@ -527,7 +529,7 @@ def plotAngularRatesInputs_with_ref(t, simU,  Nsim, w_ref, save=True):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/angulareRatesInputs.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/angulareRatesInputs.png', dpi=300)
 
 def plotAngularRatesInputs(t, simU, Nsim, save=True):
     plt.style.use('seaborn')
@@ -555,7 +557,7 @@ def plotAngularRatesInputs(t, simU, Nsim, save=True):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/angulareRatesInputs.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/angulareRatesInputs.png', dpi=300)
 
 def plotAngleInputs(t,simU,eulerAngles,save=False):
 
@@ -581,7 +583,7 @@ def plotAngleInputs(t,simU,eulerAngles,save=False):
     plt.tight_layout()
 
     if save ==True:
-        fig.savefig('figures/angleInputs.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/angleInputs.png', dpi=300)
 
 
 def plotRes3D(predX, simX, simU, simU_euler, t):
@@ -739,7 +741,7 @@ def plotSim3D_ref_point(simX, X_ref, save=False):
     axisEqual3D(ax)
 
     if save == True:
-        fig.savefig('figures/sim3D.png', dpi=300)
+        fig.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/sim3D.png', dpi=300)
 
 
 
@@ -769,7 +771,7 @@ def plotErrors_no_vel(t, simX, ref_traj, Nsim, save=False):
     ax3.set_ylabel('z_error[m]')
 
     if save == True:
-        fig1.savefig('figures/Errors_position.png', dpi=300)
+        fig1.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/Errors_position.png', dpi=300)
 
 def plotErrors_with_vel(t, simX, ref_traj, Nsim, save=False):
     # errors 
@@ -818,5 +820,5 @@ def plotErrors_with_vel(t, simX, ref_traj, Nsim, save=False):
     ax6.set_ylabel('vz_error[m/s]')
 
     if save == True:
-        fig1.savefig('figures/Errors_position.png', dpi=300)
-        fig2.savefig('figures/Errors_velocities.png', dpi=300)
+        fig1.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/Errors_position.png', dpi=300)
+        fig2.savefig('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/figures/Errors_velocities.png', dpi=300)

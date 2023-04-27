@@ -22,7 +22,7 @@
 
 
 <launch>
-  <arg name="quad_name" />
+  <arg name="quad_name"/>
   <group ns="$(arg quad_name)" >
 
     <node pkg="mpc1_pkg" type="ibvs_mpc1_controller_node" name="ibvs_mpc1_controller_node" output="screen" >

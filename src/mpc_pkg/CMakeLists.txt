@@ -28,7 +28,7 @@ std_msgs
 sensor_msgs
 nav_msgs
 message_generation
-ibvs_pkg
+# ibvs_pkg
 rpg_quadrotor_common
 )
 
@@ -40,8 +40,8 @@ include_directories(
 )
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ibvs_pkg
+ INCLUDE_DIRS include
+ LIBRARIES ibvs_pkg
  CATKIN_DEPENDS geometry_msgs mav_msgs roscpp sensor_msgs std_msgs trajectory_msgs nav_msgs
 #  DEPENDS system_lib
 )

@@ -159,8 +159,8 @@ def readTrajectory(T_hover, N, Ts):
     # ref_traj = pd.read_csv('used_data/matlab/presentation_8_data/7_parts/pol_9/J=u1/measX.csv')
     # ref_U = pd.read_csv('used_data/matlab/presentation_8_data/7_parts/pol_9/J=u1/simU.csv')
     
-    ref_traj = pd.read_csv('used_data/matlab/globalsearch_2/measX.csv')
-    ref_U = pd.read_csv('used_data/matlab/globalsearch_2/simU.csv')
+    ref_traj = pd.read_csv('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/used_data/matlab/globalsearch_2/measX.csv')
+    ref_U = pd.read_csv('/home/zyh/ibvs_rpg_ws/src/mpc_pkg/scripts/used_data/matlab/globalsearch_2/simU.csv')
 
 
     # create references to add for the hovering time

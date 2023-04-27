@@ -1,22 +1,19 @@
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
-from math import cos, sin, pi
 
-xs = []
-ys = []
-x0, y0 = 0, 0  # origin
-r = 0.6        # radius
-for angle in range(0, 360, 20):
-    x = x0 + r * cos(angle * pi / 180)
-    y = y0 + r * sin(angle * pi / 180)
-    xs.append(x)
-    ys.append(y)
+x0, y0 = 0, 0  # 原点
+r = 0.6        # 半径
+angles = np.arange(0, 2*np.pi, np.pi/9)  # 角度列表
+xs = x0 + r * np.cos(angles)
+ys = y0 + r * np.sin(angles)
 
-xs.append(x0 + r * cos(360 * pi / 180))
-ys.append(y0 + r * sin(360 * pi / 180))
+# 添加最后一个点
+x_final, y_final = x0 + r * np.cos(2*np.pi), y0 + r * np.sin(2*np.pi)
+xs = np.append(xs, x_final)
+ys = np.append(ys, y_final)
 
-# plt.plot(xs, ys)
-# plt.show()
+plt.plot(xs, ys)
+plt.show()
 
-for i in range(len(xs)):
-  print ('<point>' + str(xs[i]) + ' ' + str(ys[i]) + '</point>')
+for x, y in zip(xs, ys):
+    print(f'<point>{x} {y}</point>')

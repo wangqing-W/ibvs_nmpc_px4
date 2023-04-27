@@ -48,13 +48,20 @@ def acados_settings(Ts, Tf, N):
     Q[6][6] = 0  # weight of qz
     Q[7][7] = 150  # weight of vx
     Q[8][8] = 150 # weight of vy
-    Q[9][9] = 150  # weight of vz
+    Q[9][9] = 3e3  # weight of vz
+    # Q[7][7] = 2e2  # weight of vx
+    # Q[8][8] = 2e2  # weight of vy
+    # Q[9][9] = 4e3  # weight of vz
 
     R = np.eye(nu)
     R[0][0] = 1e0  # weight of Thrust
     R[1][1] = 1e1  # weight of wx
     R[2][2] = 1e1  # weight of wy
-    R[3][3] = 5e0  # weight of wz
+    R[3][3] = 1e2  # weight of wz
+    # R[0][0] = 1e1  # weight of Thrust
+    # R[1][1] = 1e1  # weight of wx
+    # R[2][2] = 1e1  # weight of wy
+    # R[3][3] = 2e3  # weight of wz
 
     Qe = np.eye(nx)
     Qe[0][0] = Q[0][0]  # terminal weight of px
@@ -94,8 +101,12 @@ def acados_settings(Ts, Tf, N):
     ocp.cost.yref_e = x_ref
 
     # set constraints on thrust and angular velocities
-    ocp.constraints.lbu   = np.array([model.thrust_min, -0.1*np.pi, -0.1*np.pi, -0.06*np.pi])
-    ocp.constraints.ubu   = np.array([model.thrust_max,  0.1*np.pi,  0.1*np.pi,  0.06*np.pi])
+    # ocp.constraints.lbu   = np.array([model.thrust_min, -0.1*np.pi, -0.1*np.pi, -0.06*np.pi])
+    # ocp.constraints.ubu   = np.array([model.thrust_max,  0.1*np.pi,  0.1*np.pi,  0.06*np.pi])
+    # ocp.constraints.idxbu = np.array([0,1,2,3])
+
+    ocp.constraints.lbu   = np.array([model.thrust_min, -np.pi, -np.pi, -np.pi])
+    ocp.constraints.ubu   = np.array([model.thrust_max, np.pi,  np.pi,  np.pi])
     ocp.constraints.idxbu = np.array([0,1,2,3])
 
     

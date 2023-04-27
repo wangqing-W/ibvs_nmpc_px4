@@ -86,8 +86,8 @@ def drone_model():
     # input bounds
     
     # model.thrust_max = 0.9 * ((46.3e-3 * g)) # 90 % of max_thrust (max_thrust = 57g in research papers) ----- ( max_thrsut = 46g when tested) 
-    model.thrust_max = 1.5 * g
-    model.thrust_min = 0.1 * model.thrust_max
+    model.thrust_max = 1.6 * g
+    model.thrust_min = 0.2 * model.thrust_max
 
     # model.torque_max = 1 / 2 * model.thrust_max * length # divided by 2 since we only have 2 propellers in a planar quadrotor
     # model.torque_max = 0.1 * model.torque_max # keeping 10% margin for steering torque. This is done because the torque_max 

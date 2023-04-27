@@ -1,5 +1,5 @@
 #include "circle_detection/CircleDetection.h"
-#define Display 0
+#define Display 1
 #define Display_forDebug 0
 #define REALRACE 0
 

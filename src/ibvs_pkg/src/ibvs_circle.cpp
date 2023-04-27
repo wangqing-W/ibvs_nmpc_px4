@@ -20,7 +20,7 @@ void ibvsCircle::init(ros::NodeHandle &nh)
     depth_dir = "/src/ibvs_pkg/target/desired_d.png";
     quad_sub = nh.subscribe("/hummingbird/imu", 1, &ibvsCircle::quadCallback, this, ros::TransportHints().tcpNoDelay());
     pos_sub = nh.subscribe("/hummingbird/ground_truth/pose", 1, &ibvsCircle::poseCallback, this, ros::TransportHints().tcpNoDelay());
-    target_reached_pub = nh.advertise<std_msgs::Bool>("target_reached", 1);
+    target_reached_pub = nh.advertise<std_msgs::Bool>("ring/target_reached", 1);
 	puvz_pub = nh.advertise<ibvs_pkg::point_xyz>("/hummingbird/markerpoint", 1);
     vel_pub = nh.advertise<ibvs_pkg::xyzyawVel>("/hummingbird/reference_vel", 1);
     vel_msg.header.frame_id = "reference_velocity";

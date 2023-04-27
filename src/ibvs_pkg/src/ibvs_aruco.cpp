@@ -103,7 +103,7 @@ int main(int argc, char **argv)
                 << endl;
     pos_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>("/hummingbird/command/trajectory", 1);
     pos_sub = nh.subscribe<geometry_msgs::Pose>("/hummingbird/ground_truth/pose", 1, poseCallback);
-	ros::Publisher target_reached_pub = nh.advertise<std_msgs::Bool>("target_reached", 1);
+	ros::Publisher target_reached_pub = nh.advertise<std_msgs::Bool>("aruco/target_reached", 1);
 	/******************************************************************************* DETECT TO A POSE */
 	ros::Publisher marker_pub, vel_pub, est_vel_pub;
 	marker_pub = nh.advertise<ibvs_pkg::Marker>("/hummingbird/camera/Marker", 1);
@@ -460,7 +460,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msg
 			Mat desired_temp = state.desired_configuration.img.clone();
 			for (int i = 0; i < matching_result.p1.rows; i++)
 			{
-				circle(desired_temp, Point2f(matching_result.p1.at<double>(i, 0), matching_result.p1.at<double>(i, 1)), 3, Scalar(0, 0, 255), -1);//RED
+				circle(actual, Point2f(matching_result.p1.at<double>(i, 0), matching_result.p1.at<double>(i, 1)), 3, Scalar(0, 0, 255), -1);//RED
 			}
 			for (int i = 0; i < new_points.rows; i++)
 			{
@@ -469,9 +469,9 @@ void imageCallback(const sensor_msgs::ImageConstPtr &color_msg, const sensor_msg
 				c2_uv.push_back(Eigen::Vector3d(new_points.at<Point2f>(i, 0).x, new_points.at<Point2f>(i, 0).y, 1));
 				d1_uv = alignColor2Depth(actual, actual_depth, c1_uv, state.params);
 				d2_uv = alignColor2Depth(actual, actual_depth, c2_uv, state.params);
-				circle(desired_temp, new_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
-				circle(actual, new_points.at<Point2f>(i, 0), 3, Scalar(0, 0, 255), -1);// Red
-				circle(actual, img_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
+				circle(actual, new_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
+				circle(desired_temp, new_points.at<Point2f>(i, 0), 3, Scalar(0, 0, 255), -1);// Red
+				circle(desired_temp, img_points.at<Point2f>(i, 0), 3, Scalar(255, 0, 0), -1);// Blue
 				// cout << "coordinates in depth image:" << d2_uv[0][0] << "," << d2_uv[0][1] << endl;				  
 				circle(actual_depth, Point2f(d1_uv[0][0], d1_uv[0][1]), 6, Scalar(255, 255, 255), -1);
 				circle(actual_depth, Point2f(d2_uv[0][0], d2_uv[0][1]), 6, Scalar(255, 255, 255), -1);
