@@ -1,6 +1,0 @@
-devel_space: /home/zyh/ibvs_nmpc_ws/devel
-install: false
-install_space: /home/zyh/ibvs_nmpc_ws/install
-profile: default
-source_space: /home/zyh/ibvs_nmpc_ws/src
-workspace: /home/zyh/ibvs_nmpc_ws

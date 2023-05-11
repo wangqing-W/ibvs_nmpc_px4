@@ -1,5 +1,0 @@
-/usr/bin/ld: /home/zyh/ibvs_nmpc_ws/devel/lib/libgeometric_controller.so: undefined reference to `geometricCtrl::feedCmdCallback(geometry_msgs::TwistStamped_<std::allocator<void> > const&)'
-collect2: error: ld returned 1 exit status
-make[2]: *** [CMakeFiles/geometric_controller_node.dir/build.make:185：/home/zyh/ibvs_nmpc_ws/devel/lib/geometric_controller/geometric_controller_node] 错误 1
-make[1]: *** [CMakeFiles/Makefile2:2972：CMakeFiles/geometric_controller_node.dir/all] 错误 2
-make: *** [Makefile:146：all] 错误 2

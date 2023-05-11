@@ -1,0 +1,8 @@
+build/
+devel/
+logs/
+.catkin_tools/
+.vscode/
+c_generated_code/
+acados_sim_Translational_drone.json
+Translational_drone_acados_ocp.json

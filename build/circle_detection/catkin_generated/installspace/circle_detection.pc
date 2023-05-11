@@ -1,8 +1,0 @@
-prefix=/home/zyh/ibvs_nmpc_ws/install
-
-Name: circle_detection
-Description: Description of circle_detection
-Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: cv_bridge opencv roscpp std_msgs custom_msgs
