@@ -1,0 +1,5 @@
+<!-- Start ibvs pkg-->
+<launch>
+  <node name="ibvs_aruco_node" type="ibvs_aruco" pkg="ibvs_pkg" output="screen"/>
+  <rosparam command="load" file="$(find ibvs_pkg)/config/params_iris.yaml"/>
+</launch>

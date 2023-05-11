@@ -1,0 +1,12 @@
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:[m[K In copy constructor ‘[01m[KSolutionAnalysis::SolutionAnalysis(const SolutionAnalysis&)[m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:46:61:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Krhs[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   46 | SolutionAnalysis::SolutionAnalysis( [01;35m[Kconst SolutionAnalysis& rhs[m[K )
+      |                                     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~^~~[m[K
+In file included from [01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:25[m[K:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/include/ibvs_mpc1/ibvs_mpc1_controller.h:33:10:[m[K [01;31m[Kfatal error: [m[Kquadrotor_common/control_command.h: 没有那个文件或目录
+   33 | #include [01;31m[K<quadrotor_common/control_command.h>[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/ibvs_mpc1_controller.dir/build.make:76：CMakeFiles/ibvs_mpc1_controller.dir/src/ibvs_mpc1_controller.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:2033：CMakeFiles/ibvs_mpc1_controller.dir/all] 错误 2
+make: *** [Makefile:146：all] 错误 2

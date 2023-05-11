@@ -1,0 +1,5 @@
+_workspace_packages=( ${(Q)"${(z)$(<<\EO:_workspace_packages
+'catkin_simple' 'controller_msgs' 'custom_msgs' 'circle_detection' 'eigen_catkin' 'geometric_controller' 'mav_comm' 'mav_msgs' 'ibvs_pkg' 'mav_planning_msgs' 'mav_state_machine_msgs' 'mav_system_msgs' 'mavros_controllers' 'mpc_pkg' 'trajectory_publisher'
+EO:_workspace_packages
+)}"} )
+_workspace_cache_file_path='/home/zyh/ibvs_nmpc_ws/.catkin_tools/cache'

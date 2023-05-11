@@ -1,0 +1,23 @@
+In file included from [01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/src/ibvs_aruco.cpp:1[m[K:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/include/ibvs_aruco.h:40:10:[m[K [01;31m[Kfatal error: [m[Kibvs_pkg/Marker.h: 没有那个文件或目录
+   40 | #include [01;31m[K"ibvs_pkg/Marker.h"[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/ibvs_aruco.dir/build.make:76：CMakeFiles/ibvs_aruco.dir/src/ibvs_aruco.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:2018：CMakeFiles/ibvs_aruco.dir/all] 错误 2
+make[1]: *** 正在等待未完成的任务....
+In file included from [01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/src/ibvs_circle_node.cpp:2[m[K:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/include/ibvs_circle.h:43:10:[m[K [01;31m[Kfatal error: [m[Kibvs_pkg/Marker.h: 没有那个文件或目录
+   43 | #include [01;31m[K"ibvs_pkg/Marker.h"[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/ibvs_circle.dir/build.make:76：CMakeFiles/ibvs_circle.dir/src/ibvs_circle_node.cpp.o] 错误 1
+make[2]: *** 正在等待未完成的任务....
+In file included from [01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/src/ibvs_circle.cpp:1[m[K:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/include/ibvs_circle.h:43:10:[m[K [01;31m[Kfatal error: [m[Kibvs_pkg/Marker.h: 没有那个文件或目录
+   43 | #include [01;31m[K"ibvs_pkg/Marker.h"[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/ibvs_circle.dir/build.make:90：CMakeFiles/ibvs_circle.dir/src/ibvs_circle.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:2044：CMakeFiles/ibvs_circle.dir/all] 错误 2
+make: *** [Makefile:146：all] 错误 2

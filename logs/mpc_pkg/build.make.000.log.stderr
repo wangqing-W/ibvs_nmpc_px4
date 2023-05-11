@@ -1,0 +1,24 @@
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:[m[K In copy constructor ‘[01m[KSolutionAnalysis::SolutionAnalysis(const SolutionAnalysis&)[m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:46:61:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Krhs[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   46 | SolutionAnalysis::SolutionAnalysis( [01;35m[Kconst SolutionAnalysis& rhs[m[K )
+      |                                     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~^~~[m[K
+/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp: In instantiation of ‘[01m[Kvoid ibvs_mpc1::IbvsMpc1Controller<T>::offCallback(const ConstPtr&) [with T = float; std_msgs::Empty_<std::allocator<void> >::ConstPtr = boost::shared_ptr<const std_msgs::Empty_<std::allocator<void> > >][m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:418:7:[m[K   required from here
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:81:38:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kmsg[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   81 |     [01;35m[Kconst std_msgs::Empty::ConstPtr& msg[m[K) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~[m[K
+/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp: In instantiation of ‘[01m[Kvoid ibvs_mpc1::IbvsMpc1Controller<T>::refVelCallback(const ConstPtr&) [with T = float; ibvs_pkg::xyzyawVel_<std::allocator<void> >::ConstPtr = boost::shared_ptr<const ibvs_pkg::xyzyawVel_<std::allocator<void> > >][m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:418:7:[m[K   required from here
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:128:13:[m[K [01;35m[Kwarning: [m[Kvariable ‘[01m[Kcommand_execution_time[m[K’ set but not used [[01;35m[K-Wunused-but-set-variable[m[K]
+  128 |   ros::Time [01;35m[Kcommand_execution_time[m[K =
+      |             [01;35m[K^~~~~~~~~~~~~~~~~~~~~~[m[K
+/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp: In instantiation of ‘[01m[Kvoid ibvs_mpc1::IbvsMpc1Controller<T>::offCallback(const ConstPtr&) [with T = double; std_msgs::Empty_<std::allocator<void> >::ConstPtr = boost::shared_ptr<const std_msgs::Empty_<std::allocator<void> > >][m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:421:7:[m[K   required from here
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:81:38:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kmsg[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   81 |     [01;35m[Kconst std_msgs::Empty::ConstPtr& msg[m[K) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~[m[K
+/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp: In instantiation of ‘[01m[Kvoid ibvs_mpc1::IbvsMpc1Controller<T>::refVelCallback(const ConstPtr&) [with T = double; ibvs_pkg::xyzyawVel_<std::allocator<void> >::ConstPtr = boost::shared_ptr<const ibvs_pkg::xyzyawVel_<std::allocator<void> > >][m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:421:7:[m[K   required from here
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:128:13:[m[K [01;35m[Kwarning: [m[Kvariable ‘[01m[Kcommand_execution_time[m[K’ set but not used [[01;35m[K-Wunused-but-set-variable[m[K]
+  128 |   ros::Time [01;35m[Kcommand_execution_time[m[K =
+      |             [01;35m[K^~~~~~~~~~~~~~~~~~~~~~[m[K

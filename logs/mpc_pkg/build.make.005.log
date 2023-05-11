@@ -1,0 +1,87 @@
+[  0%] Built target mav_msgs_generate_messages_lisp
+[  0%] Built target rosgraph_msgs_generate_messages_py
+[  0%] Built target std_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_lisp
+[  0%] Built target std_msgs_generate_messages_eus
+[  0%] Built target geometry_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_nodejs
+[  0%] Built target mav_msgs_generate_messages_nodejs
+[  0%] Built target std_msgs_generate_messages_py
+[  0%] Built target mav_msgs_generate_messages_cpp
+[  0%] Built target mav_msgs_generate_messages_eus
+[  0%] Built target mav_msgs_generate_messages_py
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[  0%] Built target geometry_msgs_generate_messages_eus
+[  0%] Built target trajectory_msgs_generate_messages_cpp
+[  0%] Built target nav_msgs_generate_messages_cpp
+[  0%] Built target geometry_msgs_generate_messages_nodejs
+[  0%] Built target trajectory_msgs_generate_messages_lisp
+[  0%] Built target trajectory_msgs_generate_messages_eus
+[  0%] Built target nav_msgs_generate_messages_eus
+[  0%] Built target geometry_msgs_generate_messages_py
+[  0%] Built target nav_msgs_generate_messages_lisp
+[  0%] Built target trajectory_msgs_generate_messages_py
+[  0%] Built target trajectory_msgs_generate_messages_nodejs
+[  0%] Built target nav_msgs_generate_messages_nodejs
+[  0%] Built target nav_msgs_generate_messages_py
+[  0%] Built target actionlib_msgs_generate_messages_nodejs
+[  0%] Built target actionlib_msgs_generate_messages_cpp
+[  0%] Built target actionlib_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_nodejs
+[  0%] Built target actionlib_msgs_generate_messages_lisp
+[  0%] Built target sensor_msgs_generate_messages_cpp
+[  0%] Built target sensor_msgs_generate_messages_lisp
+[  0%] Built target actionlib_msgs_generate_messages_py
+[  0%] Built target sensor_msgs_generate_messages_py
+[  0%] Built target custom_msgs_generate_messages_lisp
+[  0%] Built target custom_msgs_generate_messages_cpp
+[  0%] Built target custom_msgs_generate_messages_eus
+[  0%] Built target custom_msgs_generate_messages_nodejs
+[  0%] Built target custom_msgs_generate_messages_py
+[  0%] Built target ibvs_pkg_generate_messages_eus
+[  0%] Built target ibvs_pkg_generate_messages_cpp
+[  0%] Built target ibvs_pkg_generate_messages_lisp
+[  0%] Built target ibvs_pkg_generate_messages_nodejs
+[  0%] Built target roscpp_generate_messages_lisp
+[  0%] Built target roscpp_generate_messages_nodejs
+[  0%] Built target ibvs_pkg_generate_messages_py
+[  0%] Built target roscpp_generate_messages_py
+[  0%] Built target roscpp_generate_messages_cpp
+[  0%] Built target roscpp_generate_messages_eus
+[  0%] Built target rosgraph_msgs_generate_messages_cpp
+[  0%] Built target rosgraph_msgs_generate_messages_eus
+[  0%] Built target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target rosgraph_msgs_generate_messages_nodejs
+[  4%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/CyclingManager.cpp.o[0m
+[ 14%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/Indexlist.cpp.o[0m
+[ 14%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/Constraints.cpp.o[0m
+[ 19%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/Bounds.cpp.o[0m
+[ 28%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/QProblemB.cpp.o[0m
+[ 28%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/QProblem.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/SubjectTo.cpp.o[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/Utils.cpp.o[0m
+[ 42%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/MessageHandling.cpp.o[0m
+[ 47%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp.o[0m
+[ 52%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_solver.dir/model/quadrotor_mpc_codegen/acado_qpoases_interface.cpp.o[0m
+[ 57%] [32mBuilding C object CMakeFiles/ibvs_mpc1_solver.dir/model/quadrotor_mpc_codegen/acado_integrator.c.o[0m
+[ 61%] [32mBuilding C object CMakeFiles/ibvs_mpc1_solver.dir/model/quadrotor_mpc_codegen/acado_solver.c.o[0m
+[ 66%] [32mBuilding C object CMakeFiles/ibvs_mpc1_solver.dir/model/quadrotor_mpc_codegen/acado_auxiliary_functions.c.o[0m
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:[m[K In copy constructor ‘[01m[KSolutionAnalysis::SolutionAnalysis(const SolutionAnalysis&)[m[K’:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp:46:61:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Krhs[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   46 | SolutionAnalysis::SolutionAnalysis( [01;35m[Kconst SolutionAnalysis& rhs[m[K )
+      |                                     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~^~~[m[K
+[ 71%] [32m[1mLinking CXX shared library /home/zyh/ibvs_nmpc_ws/devel/lib/libibvs_mpc1_solver.so[0m
+[ 71%] Built target ibvs_mpc1_solver
+[ 76%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_wrapper.dir/src/ibvs_mpc1_wrapper.cpp.o[0m
+[ 80%] [32m[1mLinking CXX shared library /home/zyh/ibvs_nmpc_ws/devel/lib/libibvs_mpc1_wrapper.so[0m
+[ 80%] Built target ibvs_mpc1_wrapper
+[ 85%] [32mBuilding CXX object CMakeFiles/ibvs_mpc1_controller.dir/src/ibvs_mpc1_controller.cpp.o[0m
+In file included from [01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/src/ibvs_mpc1_controller.cpp:25[m[K:
+[01m[K/home/zyh/ibvs_nmpc_ws/src/mpc_pkg/include/ibvs_mpc1/ibvs_mpc1_controller.h:33:10:[m[K [01;31m[Kfatal error: [m[Kquadrotor_common/control_command.h: 没有那个文件或目录
+   33 | #include [01;31m[K<quadrotor_common/control_command.h>[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/ibvs_mpc1_controller.dir/build.make:76：CMakeFiles/ibvs_mpc1_controller.dir/src/ibvs_mpc1_controller.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:2033：CMakeFiles/ibvs_mpc1_controller.dir/all] 错误 2
+make: *** [Makefile:146：all] 错误 2

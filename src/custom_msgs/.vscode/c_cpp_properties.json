@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/opt/ros/melodic/include/**",
+                "/usr/include/**",
+                "/usr/include/eigen3/**",
+                "${workspaceFolder}/**",
+                "/home/racheraven/Drone91/Drone824/devel/include",
+                "${workspaceFolder}/task_planner/include",
+                "/home/racheraven/AirSim/AirLib/include/**",
+                "/home/racheraven/AirSim/AirLib/deps/MavLinkCom/include/**",
+                "/home/racheraven/AirSim/AirLib/deps/rpclib/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/opt/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

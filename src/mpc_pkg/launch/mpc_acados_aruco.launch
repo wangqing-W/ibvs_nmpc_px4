@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+  <!-- Load Parameter -->
+  <!-- Start acados_mpc_control and ros wrapper -->
+  <node pkg="mpc_pkg" type="drone_control1.py" name="acados_mpc_control" output="screen" >
+    <!-- sensor topic -->
+    <param name="imu_topic"             value="/mavros/imu/data"/>
+    <param name="odom_topic"            value="/mavros/local_position/odom"/>
+
+    <!-- ibvs topic -->
+    <param name="ref_vel_topic"         value="/hummingbird/reference_vel"/>
+    <param name="marker_topic"          value="/hummingbird/markerpoint" /> 
+
+    <!-- control topic -->
+    <param name="control_command_topic" value="/mavros/feedthrough/control_command_input" />
+    <!-- <param name="arm_topic"             value="bridge/arm" /> -->
+  </node>
+</launch>

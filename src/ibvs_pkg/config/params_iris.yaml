@@ -1,0 +1,52 @@
+SAVE_DESIRED_POS: 0
+SAVE_IMAGES: 0
+
+# # topic info
+d435i_depth_topic: "/camera/depth/image_raw"
+d435i_color_topic: "/camera/color/image_raw"
+
+# The camera intrinsic parameters matrix
+# 3x3 matrix
+camera_intrinsic_parameters: [462.266357421875, 0,    320.0,
+                              0,    462.266357421875, 240.0,
+                              0,    0,    1]
+
+camera_depth_intrinsic_parameters: [319.9348449707031, 0,    320.0,
+                              0,    319.9348449707031, 240.0,
+                              0,    0,    1]
+
+# Sampling time
+dt: 0.01
+
+# Gain on linear velocities
+############################################################
+# Para el control #1
+gainv: 2.25 # 2 for circle 1.5
+############################################################
+# Para el control #2
+# gain_v: .4
+
+# Gain on angular velocities
+gainw: 1.5 # 1.5 for circle 1.0
+
+# Threshold on the feature position error, used to stop the visual control
+feature_error_threshold: .15 # 0.1 for circle
+
+nfeatures: 500
+scaleFactor: 1.2
+nlevels: 8
+edgeThreshold: 15
+patchSize: 30
+fastThreshold: 20
+flann_ratio: 0.7
+
+############################################################
+# Cambio de control 1 o 2.
+control: 1
+
+############################################################
+# Cambio de cámara 0, 1 o 2.
+# 0 Para cámara de humminbird
+# 1 Para cámara de iris - frontal
+# 2 Para cámara de iris - abajo
+camara: 1
