@@ -20,6 +20,7 @@ typedef struct vc_parameters
 
     // Image proessing parameters
     float feature_threshold = 1;
+    float rotation_threshold = 1;
     int nfeatures = 250;
     float scaleFactor = 1.2;
     int nlevels = 8;

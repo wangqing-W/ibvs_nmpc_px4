@@ -59,7 +59,7 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
             ROS_INFO("middle stage —— YESSSS!!");
             ring_actual = circleDetection.getResult();
             ROS_INFO("ring_actual.first:%f, %f, %f", ring_actual.first[0], ring_actual.first[1], ring_actual.first[2]);
-            if(ring_actual.first[2] > 2000/**/ && ring_actual.first[2] < 3200) target_reached_msg.data = false;
+            if(ring_actual.first[2] > 2000/**/ && ring_actual.first[2] < 3500) target_reached_msg.data = false;
         }
         target_reached_pub.publish(target_reached_msg);
         return;
@@ -236,7 +236,7 @@ void ibvsCircle::imageCallback(const sensor_msgs::ImageConstPtr &color_msg, cons
         contIMG++;
     }
     ROS_INFO("matching_result.mean_feature_error:%f", matching_result.mean_feature_error);
-    if (matching_result.mean_feature_error < state.params.feature_threshold && contIMG > 3)
+    if (matching_result.mean_feature_error < state.params.feature_threshold && contIMG > 3 && vel_msg.Vyaw < state.params.rotation_threshold)
     {
         cout << endl
              << "[INFO] Target reached within the feature threshold and maximum iterations" << endl

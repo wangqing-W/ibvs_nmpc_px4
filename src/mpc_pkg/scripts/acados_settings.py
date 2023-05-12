@@ -49,7 +49,7 @@ def acados_settings(Ts, Tf, N):
     # for ring
     Q[7][7] = 2e2  # weight of vx
     Q[8][8] = 2e2  # weight of vy
-    Q[9][9] = 6e3  # weight of vz
+    Q[9][9] = 5e3  # weight of vz
     # for aruco
     # Q[7][7] = 150  # weight of vx
     # Q[8][8] = 150  # weight of vy

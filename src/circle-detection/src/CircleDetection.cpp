@@ -10,7 +10,7 @@
 #define IMAGE_WIDTH 640
 #define IMAGE_HEIGHT 480
 
-#define farawayTH 3250
+#define farawayTH 3500
 
 using namespace cv;
 using namespace std;

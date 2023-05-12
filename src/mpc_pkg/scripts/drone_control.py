@@ -279,9 +279,9 @@ class QuadrotorController(object):
         self.ref_vel_filter[3] = self.vel_W[3] + self.beta * (self.ref_vel[3] - self.vel_W[3])
         # 将所有阶段的数据存储在一个numpy数组中
         yref_all = np.zeros((self.N, 26))
-        yref_all[:, 7] = self.ref_vel_filter[0, 0]
-        yref_all[:, 8] = self.ref_vel_filter[1, 0]
-        yref_all[:, 9] = self.ref_vel_filter[2, 0]
+        yref_all[:, 7] = self.ref_vel[0, 0]
+        yref_all[:, 8] = self.ref_vel[1, 0]
+        yref_all[:, 9] = self.ref_vel[2, 0]
         # yref_all[:, 10] = 0.0
         # yref_all[:, 11] = 0.0
         yref_all[:, 12] = 3.0
@@ -309,9 +309,9 @@ class QuadrotorController(object):
         qx_e = 0.0
         qy_e = 0.0
         qz_e = 0.0
-        vx_e = self.ref_vel_filter[0, 0]
-        vy_e = self.ref_vel_filter[1, 0]
-        vz_e = self.ref_vel_filter[2, 0]
+        vx_e = self.ref_vel[0, 0]
+        vy_e = self.ref_vel[1, 0]
+        vz_e = self.ref_vel[2, 0]
 
         yref_N = np.array([x_e, y_e, z_e, qw_e, qx_e,
                            qy_e, qz_e, vx_e, vy_e, vz_e,
@@ -394,10 +394,10 @@ class QuadrotorController(object):
 if __name__ == "__main__":
     rospy.init_node('acados_mpc_control', anonymous=True)
     # for circle
-    quadrotorController = QuadrotorController(2.25, 4)
+    quadrotorController = QuadrotorController(2, 5)
     # for aruco
     # quadrotorController = QuadrotorController(2, 4)
-    rate = rospy.Rate(30)  # 设置循环频率为50Hz
+    rate = rospy.Rate(50)  # 设置循环频率为50Hz
     while not rospy.is_shutdown():
         # 在这里执行其他操作，例如检查程序是否应该退出
         if quadrotorController.get_aruco_reached():

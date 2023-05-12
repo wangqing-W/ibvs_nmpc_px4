@@ -39,6 +39,7 @@ void vc_state::load(const ros::NodeHandle &nh)
        << this->params.K_depth << endl;
   // Load error threshold parameter
   this->params.feature_threshold = nh.param(std::string("feature_error_threshold"), std::numeric_limits<double>::max());
+  this->params.rotation_threshold = nh.param(std::string("rotation_threshold"), std::numeric_limits<double>::max());
   // Load feature detector parameters
   this->params.nfeatures = nh.param(std::string("nfeatures"), 100);
   this->params.scaleFactor = nh.param(std::string("scaleFactor"), 1.0);
