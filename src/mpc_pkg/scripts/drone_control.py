@@ -60,7 +60,7 @@ class QuadrotorController(object):
         self.num = 0
 
         # self.odom = Odometry()
-        self.const_vel_B = np.array([[1], [0.0], [0.06]])
+        self.const_vel_B = np.array([[1], [0.0], [0.075]])
         self.vel_B = np.zeros([3,1])
         self.vel_W = np.zeros([4,1])
         self.ref_vel = np.zeros([4,1])
