@@ -72,7 +72,7 @@ def acados_settings(Ts, Tf, N):
     R[0][0] = 1e1  # weight of Thrust
     R[1][1] = 1e1  # weight of wx
     R[2][2] = 1e1  # weight of wy
-    R[3][3] = 6e3  # weight of wz
+    R[3][3] = 5e3  # weight of wz
     # for aruco
     # R[0][0] = 1e0  # weight of Thrust
     # R[1][1] = 1e1  # weight of wx

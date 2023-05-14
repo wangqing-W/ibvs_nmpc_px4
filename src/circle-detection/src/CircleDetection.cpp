@@ -54,7 +54,7 @@ void CircleDetection::imgdepth_callback(const sensor_msgs::ImageConstPtr &img_ms
     double get_time, remove_time, int_time, equ_time, detect_time, draw_time, circle_time;
     t0 = ros::Time::now();
     depth_buf = getDepthImageFromMsg(img_msg);
-    cv::imwrite("/home/zyh/ibvs_nmpc_ws/src/ibvs_pkg/target/desired_d.png", depth_buf);
+    cv::imwrite("/home/drone/zyh/ibvs_nmpc_px4_ws/src/ibvs_pkg/target/desired_d.png", depth_buf);
     get_time = (ros::Time::now()-t0).toSec();
     t0 = ros::Time::now();
 

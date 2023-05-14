@@ -124,7 +124,7 @@ def drone_model():
     
     # model.thrust_max = 0.9 * ((46.3e-3 * g)) # 90 % of max_thrust (max_thrust = 57g in research papers) ----- ( max_thrsut = 46g when tested) 
     model.thrust_max = 2 * g
-    model.thrust_min = 0.5 * model.thrust_max
+    model.thrust_min = 0.2 * model.thrust_max
     model.u_max = u_range
     model.u_min = -u_range
     model.v_max = v_range

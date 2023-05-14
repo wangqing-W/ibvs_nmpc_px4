@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   mavros_msgs
   mavlink
   custom_msgs
+  controller_msgs
 )
 
 generate_dynamic_reconfigure_options(
