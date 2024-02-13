@@ -60,7 +60,7 @@ class QuadrotorController(object):
         self.num = 0
 
         # self.odom = Odometry()
-        self.const_vel_B = np.array([[1], [0.0], [0.075]])
+        self.const_vel_B = np.array([[0.8], [0.0], [0.1]])
         self.vel_B = np.zeros([3,1])
         self.vel_W = np.zeros([4,1])
         self.ref_vel = np.zeros([4,1])
@@ -158,6 +158,7 @@ class QuadrotorController(object):
         self.acados_solver.set(0, "lbx", self.x_current)
         self.acados_solver.set(0, "ubx", self.x_current)
         # 设置acados_solver的reference
+        if(ref_vel_msg.Vz>0): ref_vel_msg.Vz*=1.5
         self.ref_vel = np.array([[ref_vel_msg.Vx], [ref_vel_msg.Vy], [ref_vel_msg.Vz], [ref_vel_msg.Vyaw]])
         self.ref_vel_filter[0:3,:] = self.vel_W[0:3,:] + self.alpha * (self.ref_vel[0:3,:] - self.vel_W[0:3,:])
         self.ref_vel_filter[3] = self.vel_W[3] + self.beta * (self.ref_vel[3] - self.vel_W[3])
@@ -397,7 +398,7 @@ if __name__ == "__main__":
     quadrotorController = QuadrotorController(2, 5)
     # for aruco
     # quadrotorController = QuadrotorController(2, 4)
-    rate = rospy.Rate(50)  # 设置循环频率为50Hz
+    rate = rospy.Rate(35)  # 设置循环频率为50Hz
     while not rospy.is_shutdown():
         # 在这里执行其他操作，例如检查程序是否应该退出
         if quadrotorController.get_aruco_reached():

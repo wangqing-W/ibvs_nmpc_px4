@@ -27,11 +27,11 @@ gainv: 1.8 # 2 for circle 1.5
 # gain_v: .4
 
 # Gain on angular velocities
-gainw: 0.8 # 1.5 for circle 1.0
+gainw: 1 # 1.5 for circle 1.0
 
 # Threshold on the feature position error, used to stop the visual control
-feature_error_threshold: .15 # 0.1 for circle
-rotation_error_threshold: .02
+feature_error_threshold: .16 # 0.1 for circle
+rotation_error_threshold: .04
 
 nfeatures: 500
 scaleFactor: 1.2

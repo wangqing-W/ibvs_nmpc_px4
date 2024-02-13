@@ -9,8 +9,8 @@
     <!-- vehicle model and world -->
     <arg name="est" default="ekf2"/>
     <arg name="vehicle" default="iris"/>
-    <arg name="world" default="$(find px4)/Tools/sitl_gazebo/worlds/ground_circle.world"/>
-    <arg name="sdf" default="$(find px4)/Tools/sitl_gazebo/models/iris_realsense_camera/iris_realsense_camera.sdf"/>
+    <arg name="world" default="$(find px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/ground_circle.world"/>
+    <arg name="sdf" default="$(find px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_realsense_camera/iris_realsense_camera.sdf"/>
     <!-- <arg name="rcS" default="$(find px4)/posix-configs/SITL/init/$(arg est)/$(arg vehicle)_vo"/> -->
 
     <!-- gazebo configs -->

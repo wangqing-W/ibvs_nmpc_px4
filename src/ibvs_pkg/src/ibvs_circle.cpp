@@ -15,7 +15,7 @@ void ibvsCircle::init(ros::NodeHandle &nh)
     contIMG = 0;
     state.load(nh);
     initCamTopics(nh);
-    workspace = "/home/drone/zyh/ibvs_nmpc_px4_ws";
+    workspace = "/home/zyh/ibvs_nmpc_px4_ws";
     color_dir = "/src/ibvs_pkg/target/desired_c.png";
     depth_dir = "/src/ibvs_pkg/target/desired_d.png";
     quad_sub = nh.subscribe("/mavros/imu/data", 1, &ibvsCircle::quadCallback, this, ros::TransportHints().tcpNoDelay());
