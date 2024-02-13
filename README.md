@@ -2,6 +2,9 @@
 The simulation code of my undergraduate thesis: 
 
 **Perception-constrained Visual Servoing Based NMPC for Quadrotor Flight**
+
+![image0](https://github.com/hang0610/hang0610.github.io/blob/main/assets/images/undergraduate_thesis.png 'image0')
+
 ## Introduction
 In this project, I leveraged Image-Based Visual Servo to control the translation and rotation of the four-rotor UAV, where the expected velocity v was calculated according to the image moment error, and the velocity v was tracked by the Nonlinear Model Predictive Control. Meanwhile, I also take the vision restriction into consideration to prevent the loss of visual features.
 
@@ -77,7 +80,7 @@ In this project, I leveraged Image-Based Visual Servo to control the translation
 6. Control the drone:
    ```
    roslaunch mpc_pkg mpc_acados_controller.launch # nmpc based on acados 
-   
+
    roslaunch mpc_pkg mpc_acado_controller.launch  # nmpc based on acado(bad result)
    ```
 
