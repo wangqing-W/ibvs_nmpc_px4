@@ -9,7 +9,7 @@ The simulation code of my undergraduate thesis:
 
 ## Demo
 <div style="display: flex; align-items: center;">
-    <video src="./assets/videos/ibvs_nmpc_px4.mp4" alt="teaser" style="margin-right: 10px;">
+    <video src="./assets/videos/ibvs_nmpc_px4.mp4" alt="demo" style="margin-right: 10px;">
 </div>
 
 
