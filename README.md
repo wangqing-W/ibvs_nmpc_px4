@@ -8,7 +8,7 @@ The simulation code of my undergraduate thesis:
 </div>
 
 <div style="display: flex; align-items: center;">
-    <video src="./assets/videos/ibvs_nmpc_px4.mp4" autoplay loop muted style="margin-right: 10px; width: auto; height: auto;"></video>
+    <video src="./assets/videos/ibvs_nmpc_px4.mp4" autoplay loop muted style="margin-right: 10px;">
 </div>
 
 
