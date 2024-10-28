@@ -3,7 +3,14 @@ The simulation code of my undergraduate thesis:
 
 **Perception-constrained Visual Servoing Based NMPC for Quadrotor Flight**
 
-![image0](https://gitee.com/Hang_SJTU/ibvs_nmpc_px4_ws/raw/master/imgs/undergraduate_thesis.png 'image0')
+<div style="display: flex; align-items: center;">
+    <img src="./assets/imgs/undergraduate_thesis.png" alt="teaser" style="margin-right: 10px;">
+</div>
+
+<div style="display: flex; align-items: center;">
+    <video src="./assets/videos/ibvs_nmpc_px4.mp4" autoplay loop muted style="margin-right: 10px; width: auto; height: auto;"></video>
+</div>
+
 
 ## Introduction
 In this project, I leveraged Image-Based Visual Servo to control the translation and rotation of the four-rotor UAV, where the expected velocity v was calculated according to the image moment error, and the velocity v was tracked by the Nonlinear Model Predictive Control. Meanwhile, I also take the vision restriction into consideration to prevent the loss of visual features.
